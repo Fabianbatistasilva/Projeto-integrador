@@ -1,14 +1,51 @@
-{% extends 'base.html'%} 
+{% extends 'base.html' %} 
 {% load static %}
-{%block'title'%}Introdução{%endblock%}
+{% block 'title' %} Introdução {% endblock %}
 {%block 'sections' %}
 <div class="body_intro">
-  <div></div>
-  <div></div>
-  <div></div>
+  <div class="conteudo_texto_objetivo">
+    <div class="container_manter">
+      <a href="">
+        <label for="">Manter Peso</label>
+        <hr>
+        <p>
+          Perder peso é difícil, basta ingerir menos calorias do que você gasta por dia. A dificuldade para quem quer emagrecer é depois dessa etapa: a hora de preservar os ganhos e fazer manutenção do peso conquistado. 
+          É normal ver pessoas emagrecerem e, depois de alcançar o objetivo, recuperar todo o peso perdido – é o famoso “efeito sanfona”.
+          Muitos acreditam que os alimentos são essenciais ea solução para a manutenção do peso. Porém, isso não é verdade.
+        </p>
+      </a>
+    </div>
+    <div class="container_bulking">
+      <a href="">
+        <label for="">Cutting</label>
+        <hr>
+        <p>
+          A <strong>dieta cutting</strong> faz parte de um processo de queima de gordura corporal.
+          A dieta consiste fundamentalmente na redução das calorias ingeridas diariamente.
+          Para isso, a quantidade de carboidratos consumida é reduzida do cardápio.
+        </p>
+      </a>
+    </div>
+    <div class="container_bulking">
+      <a href="">
+        <label for="">Bulking</label>
+        <hr>
+        <p>
+          A <strong>dieta bulking</strong> é a primeira etapa para a hipertrofia muscular.
+          Nesta fase, o objetivo do indivíduo deve ser o ganho de peso, para que haja maior desenvolvimento do músculo.
+          Por isso, é uma fase em que o número de calorias ingeridas diariamente aumenta.
+        </p>
+      </a>
+    </div>
+  </div>
+  
+  <aside class="lateral_intro">
+    <div>
+      <a href="">Criar diet</a>
+    </div>
+    <div>
+
+    </div>
+  </aside>
 </div>
-<aside>
-  <div></div>
-  <div></div>
-</aside>
 {% endblock %}
