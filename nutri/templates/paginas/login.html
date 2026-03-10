@@ -1,49 +1,36 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
 {% load static %}
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link href="{% static 'fontawesomefree/css/all.min.css' %}" rel="stylesheet" type="text/css">
-</head>
-<body>
-    <header>
-        <nav>
-            <div class="select_home">
-                <a href="{%url 'home'%}">
-                    <img src="{% static 'img\logo_jovem_programador.png' %}" alt="">
-                </a>
-            </div>
-        </nav>
-    </header>
-<div class="container_login">
-{%if messages%}
-{%for message in messages%}
-<div class="erro">
-    <div class="messagem_de_erro"><label for="">{{message}}</label></div>
-</div>
-{%endfor%}
-{%endif%}
-    <div class="login">
-        <form class="form_login" action="{% url 'login_site'%}" method="POST">{% csrf_token %}
-            <label  class="text_login" for="">LOGIN</label> 
-            <input placeholder="Usuario" class="user_login" type="text" name="username" id="">
-            <input placeholder="Senha" class="senha_login" type="password" name="password" id="">
-            <button class="efetuar_login" type="submit">Logar</button>
-            <div class="socialaccount_ballot">
-                <a class="ir_cadastro" href="{% url 'resgistration_screen' %}">Cadastro</a>
-                <br>
-                <br>    
-                {% include "socialaccount/snippets/provider_list.html" with process="login" %}
-            </div>
-        </form>
-    </div>
-</div>
+{% block 'title' %}Login{% endblock %}
+{% block 'body_class' %}auth-page{% endblock %}
+{% block 'extra_css' %}
+  <link rel="stylesheet" href="{% static 'css/login.css' %}?v=20260310-1" />
+{% endblock %}
+{% block 'sections' %}
+  <div class="container_login auth-login-page">
+    <section class="login-card">
+      <h1>Entrar</h1>
+      <p>Use seu usuario e senha para acessar o sistema.</p>
 
-    
-</body>
-</html>
+      {% if messages %}
+        <div class="auth-feedback-list" role="alert" aria-live="polite">
+          {% for message in messages %}
+            <p class="auth-feedback-item">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form class="form_login" action="{% url 'login_site' %}" method="POST">
+        {% csrf_token %}
+        <label for="login-username">Usuario</label>
+        <input id="login-username" placeholder="Digite seu usuario" class="user_login" type="text" name="username" required />
+
+        <label for="login-password">Senha</label>
+        <input id="login-password" placeholder="Digite sua senha" class="senha_login" type="password" name="password" required />
+
+        <button class="efetuar_login" type="submit">Entrar</button>
+      </form>
+
+      <a class="ir_cadastro" href="{% url 'registration_screen' %}">Nao tem conta? Criar cadastro</a>
+    </section>
+  </div>
+{% endblock %}

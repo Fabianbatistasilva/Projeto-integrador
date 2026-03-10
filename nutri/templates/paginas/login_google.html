@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% block 'title' %}login{%endblock%} 
+{% block 'extra_css' %}
+<link rel="stylesheet" href="{% static 'css/google.css' %}" />
+{% endblock %}
 
 {% block 'sections' %}
 <div class="body_login_google">

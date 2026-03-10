@@ -1,778 +1,787 @@
-/*criar dieta*/
-/*refeiçoes e macros do User*/
+/* Layout: criar dieta */
 .body_create_diet {
-  width: 98vw;
-  display: flex;
-  justify-content: space-around;
-  justify-items: center;
-  padding: 1rem;
-  padding-bottom: 50px;
-}
-.body_dados_refeicao{
-  width: 800px;
-  height: 1600px;
-}
-.container_dados_ref {
-  width: 100%;
-  height: 100%;
+  --bg-panel: linear-gradient(155deg, #0f2344 0%, #1c355f 55%, #2b4d84 100%);
+  --bg-card: linear-gradient(170deg, #ffffff 0%, #eef4ff 100%);
+  --bg-soft: #f5f8ff;
+  --text-dark: #10213f;
+  --text-muted: #4b5e81;
+  --accent: #ff9c2f;
+  --accent-dark: #f07f00;
+  --ok: #227a42;
+  --danger: #c23a3a;
+  width: min(1880px, 96vw);
+  margin: 24px auto 40px;
   display: grid;
-  grid-area: dados;
-  grid-template-areas: "opçoes" "refeicoes";
-  grid-template-columns: 1fr;
-  grid-template-rows: 350px 1fr;
-  justify-items: center;
-  align-items: center;
-  background: rgba(1, 1, 1, 0.8);
-  margin-top: 40px;
-  border-radius: 15px;
+  grid-template-columns: minmax(760px, 1fr) minmax(500px, 0.8fr);
+  gap: 18px;
+  align-items: start;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
-.div_opçoes_de_ref {
-  width: 90%;
-  height: 80%;
-  grid: opçoes;
-  background-color: #ffffff;
-  border-radius: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+.side-column {
+  display: grid;
+  gap: 14px;
+  align-content: start;
 }
-.container_dados_dieta_user {
-  width: 95%;
-  height: 90%;
-  background-color: #c4c4c4;
-  border-radius: 15px;
-  box-shadow: black 5px 3px 8px 3px;
+
+.summary-toggle-btn {
+  border: 1px solid #8eb3ea;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #2f67b1, #1d4f93);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  min-height: 42px;
+  padding: 10px 12px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 16px rgba(10, 24, 49, 0.22);
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.summary-toggle-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.side-column.is-collapsed .summary-toggle-btn {
+  border-color: #ffc488;
+  background: linear-gradient(120deg, #ff9d36, #f57d00);
+  color: #ffffff;
+}
+
+.side-column.is-collapsed .summary-panel {
+  display: none;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border-radius: 16px;
+  box-shadow: 0 20px 34px rgba(12, 25, 52, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f6f9ff;
+  min-width: 0;
+}
+
+.planner-panel {
+  padding: 18px;
+  min-width: 0;
+}
+
+.planner-header h2,
+.summary-panel h2,
+.table-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.planner-header-row {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  text-align: justify;
-  gap: 1rem;
-  padding: 0.5rem 1rem;
-}
-.dados_dieta_user_linha1 {
-  width: 20%;
-  height: 85%;
-  background-color: #ffffff;
-  display: flex;
-  text-align: start;
-  flex-direction: column;
-  justify-content: space-around;
-  font-weight: 400;
-  border-radius: 10px;
-  padding: 10px;
-}
-.dados_dieta_user_linha1 > label > strong {
-  padding: 2px;
-  padding-right: 6px;
-  padding-left: 6px;
-  color: #fffcfc;
-  background-color: #0e274d;
-}
-.dados_dieta_user_linha2 {
-  background-color: #ffffff;
-  width: 25%;
-  height: 85%;
-  display: flex;
-  text-align: start;
-  flex-direction: column;
-  justify-content: space-around;
-  border-radius: 10px;
-  font-weight: 400;
-  padding: 10px;
+  gap: 8px;
 }
 
-
-.dados_dieta_user_linha2 > label > strong {
-  padding: 2px;
-  padding-right: 6px;
-  padding-left: 6px;
-  color: #fffcfc;
-  background-color: #0e274d;
-}
-.dados_dieta_user_linha3 {
-  background-color: #ffffff;
-  width: 35%;
-  height: 85%;
-  display: flex;
-  text-align: start;
-  flex-direction: column;
-  justify-content: space-around;
-  border-radius: 10px;
-  font-weight: 400;
-  padding: 10px;
-}
-.dados_dieta_user_linha3 > label > strong {
-  padding: 2px;
-  padding-right: 6px;
-  padding-left: 6px;
-  color: #fffcfc;
-  background-color: #0e274d;
-}
-.dados_dieta_user_opcoes {
-  width: 25%;
-  height: 80%;
-  background-color: #ffffff;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  border-radius: 10px;
-  justify-items: center;
+.planner-toggle-btn,
+.ref-toggle-btn {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(189, 210, 243, 0.42);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f7fbff;
   font-weight: 700;
-  gap: 7px;
+  font-size: 0.78rem;
+  min-height: 34px;
+  min-width: 88px;
+  padding: 6px 10px;
+  cursor: pointer;
 }
-.dados_dieta_user_quant_ref > span > select {
+
+.planner-toggle-btn {
+  color: #f7fbff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.planner-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.ref-toggle-btn {
+  color: #ffffff;
+  background: linear-gradient(120deg, #2f67b1, #1d4f93);
+  border-color: #8eb3ea;
+  box-shadow: 0 6px 12px rgba(11, 26, 52, 0.18);
+}
+
+.ref-toggle-btn:hover {
+  filter: brightness(1.08);
+}
+
+.planner-header p,
+.table-header p,
+.summary-description {
+  margin: 8px 0 0;
+  color: #ced8ef;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.slot-target {
+  margin-top: 8px;
+  color: #ffd89f;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.api-warning {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 173, 108, 0.5);
+  background: rgba(255, 143, 31, 0.17);
+  color: #ffe0bb;
+  font-size: 0.82rem;
+}
+
+.container_dados_dieta_user {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid #d7e0f2;
+  min-height: 78px;
+}
+
+.metric-card span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.metric-card strong {
+  width: fit-content;
+  padding: 3px 9px;
+  background: #153769;
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.metric-card.controls {
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.metric-card.controls label {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+
+.metric-card.controls select {
   width: 100%;
-  text-align: center;
+  border: 1px solid #bcc9e3;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text-dark);
+  padding: 7px 8px;
 }
+
 .button_macros {
   width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: linear-gradient(120deg, var(--accent), var(--accent-dark));
+  color: #ffffff;
   font-weight: 700;
-  border: #000000 solid 1px;
-  border-radius: 15px;
-  color: darkorange;
-  background-color: #0e274dc4;
+  cursor: pointer;
 }
+
 .button_macros:hover {
-  width: 100%;
-  font-weight: 600;
-  border: #000000 solid 1px;
-  border-radius: 15px;
-  color: white;
-  background-color: #0e274d;
-  transition: 1s;
-}
-/*refeiçoes e macros da refeição*/
-.container_refeiçoes_user {
-  width: 85%;
-  height: 95%;
-  grid: refeicoes;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  border-radius: 15px;
-  padding: 15px;
-  gap: 15px;
-}
-.refeicoes_user_one,
-.refeicoes_user_two,
-.refeicoes_user_tree,
-.refeicoes_user_four,
-.refeicoes_user_five,
-.refeicoes_user_six {
-  width: 95%;
-  height: 160px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  border-radius: 15px;
-  padding: 10px;
-  background-color: #c4c4c4;
-}
-.alimentos_refeicoes_one,
-.alimentos_refeicoes_two,
-.alimentos_refeicoes_tree,
-.alimentos_refeicoes_four,
-.alimentos_refeicoes_five,
-.alimentos_refeicoes_six {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 50%;
-  height: 100%;
-  background-color: white;
-  padding-left: 10px;
-  padding-right: 10px;
-  border-radius: 5px;
-  font-size: 18px;
-}
-.macros_refeicoes_one,
-.macros_refeicoes_two,
-.macros_refeicoes_tree,
-.macros_refeicoes_four,
-.macros_refeicoes_five,
-.macros_refeicoes_six {
-  display: flex;
-  flex-direction: column;
-  width: 35%;
-  height: 100%;
-  background-color: white;
-  padding-left: 10px;
-  padding-right: 10px;
-  border-radius: 5px;
-  font-size: 18px;
-}
-.macros_refeicoes_one > label > strong,
-.macros_refeicoes_two > label > strong,
-.macros_refeicoes_tree > label > strong,
-.macros_refeicoes_four > label > strong,
-.macros_refeicoes_five > label > strong,
-.macros_refeicoes_six > label > strong {
-  width: 15%;
-  height: 14px;
-  background-color: #0e274d;
-  padding: 3px 8px 3px 8px;
-  margin-left: 10px;
-  color: white;
-}
-.macros_refeicoes_one > label,
-.macros_refeicoes_two > label,
-.macros_refeicoes_tree > label,
-.macros_refeicoes_four > label,
-.macros_refeicoes_five > label,
-.macros_refeicoes_six > label {
-  width: 100%;
-  height: 10px;
-  display: flex;
-  text-align: start;
-  line-height: 14px;
-  padding: 7px;
-  margin-bottom: 7px;
+  filter: brightness(1.08);
 }
 
-#alimentos_linha_1_ref_1,
-#alimentos_linha_2_ref_1,
-#alimentos_linha_1_ref_2,
-#alimentos_linha_2_ref_2,
-#alimentos_linha_1_ref_3,
-#alimentos_linha_2_ref_3 {
-  border-bottom: 1.5px solid black;
-  border-top: 1.5px solid black;
-  overflow-y: scroll;
-}
-#alimentos_linha_1_ref_4,
-#alimentos_linha_2_ref_4,
-#alimentos_linha_1_ref_5,
-#alimentos_linha_2_ref_5,
-#alimentos_linha_1_ref_6,
-#alimentos_linha_2_ref_6 {
-  border-bottom: 1.5px solid black;
-  border-top: 1.5px solid black;
-  overflow-y: scroll;
-}
-#alimentos_linha_3_ref_1,
-#alimentos_linha_3_ref_2,
-#alimentos_linha_3_ref_3,
-#alimentos_linha_3_ref_4,
-#alimentos_linha_3_ref_5,
-#alimentos_linha_3_ref_6{
-  border-bottom: 1.5px solid black;
-  border-top: 1.5px solid black;
-  overflow-y: scroll;
-}
-.alimentos_refeicoes_one > label,
-.alimentos_refeicoes_two > label,
-.alimentos_refeicoes_tree > label,
-.alimentos_refeicoes_four > label,
-.alimentos_refeicoes_five > label,
-.alimentos_refeicoes_six > label{
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-  text-align: center;
-}
-.alimentos_refeicoes_one > input,
-.alimentos_refeicoes_two > input,
-.alimentos_refeicoes_tree > input,
-.alimentos_refeicoes_four > input,
-.alimentos_refeicoes_five > input,
-.alimentos_refeicoes_six > input{
-  width: 70%;
-  margin-left: 45px ;
-  height: 15px;
-  display: flex;
-  text-align: center;
-  text-transform: capitalize;
-}
-#button_macros_ref {
-  width: 62%;
-  font-weight: 500;
-  border: #000000 solid 1px;
-  border-radius: 5px;
-  color: darkorange;
-  background-color: #0e274dc4;
-}
-#button_macros_ref:hover {
-  width: 62%;
-  font-weight: 500;
-  border: #000000 solid 1px;
-  border-radius: 5px;
-  color: white;
-  background-color: #0e274d;
-  transition: 1s;
-}
-#limpar_ref {
-  width: 35%;
-  font-weight: 500;
-  border: #000000 solid 1px;
-  border-radius: 15px;
-  color: white;
-  background-color: red;
-}
-#limpar_ref:hover {
-  width: 35%;
-  font-weight: 500;
-  border: #000000 solid 1px;
-  border-radius: 15px;
-  color: white;
-  background-color: orangered;
-  transition: 1s;
+.meal-form {
+  margin-top: 16px;
 }
 
+.meal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 12px;
+}
 
-/*tabela taco*/
-.body_tabela_taco{
-  width: 800px;
-  height: 1800px;
-}
-.tabela_taco {
-  width: 100%;
-  height: 100%;
-  padding: 10px;
-}
-.container_tabela_taco {
+.refeicao-card {
+  background: var(--bg-card);
+  color: var(--text-dark);
+  border-radius: 14px;
+  border: 1px solid #d5def0;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  width: 90%;
-  height: 1538px;
-  justify-items: center;
-  background-color: rgba(1, 1, 1, 0.8);
-  margin-top: 30px;
-  padding: 30px;
-  text-transform: capitalize;
   gap: 10px;
-  border-radius: 15px;
-  overflow-y: scroll;
+  min-width: 0;
 }
-.campo_de_busca_taco {
-  width: 70%;
+
+.refeicao-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #12325f;
+  letter-spacing: 0.2px;
+}
+
+.refeicao-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.refeicao-content {
+  display: grid;
+  gap: 10px;
+}
+
+.planner-panel.planner-metrics-collapsed .container_dados_dieta_user,
+.refeicao-card.is-collapsed .refeicao-content {
+  display: none;
+}
+
+.copy-controls select,
+.copy-controls button {
+  border-radius: 8px;
+  border: 1px solid #b4c7e8;
+  padding: 7px 8px;
+  font-size: 0.82rem;
+  box-sizing: border-box;
+}
+
+.copy-controls select {
+  color: #10213f;
+  background: #ffffff;
+}
+
+.copy-controls button {
+  border: none;
+  background: #2a5fa8;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.copy-controls button:hover {
+  background: #3a74c5;
+}
+
+.meal-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.9fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.food-column,
+.macro-column {
+  background: var(--bg-soft);
+  border-radius: 10px;
+  padding: 8px;
+  border: 1px solid #dbe4f5;
+}
+
+.food-column {
+  display: grid;
+  gap: 8px;
+}
+
+.food-list {
+  display: grid;
+  gap: 8px;
+}
+
+.food-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 4px;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.food-row:hover {
+  background-color: #eaf1ff;
+}
+
+.food-row.food-row-active {
+  background-color: #dce9ff;
+  border-color: #91aedf;
+  box-shadow: inset 0 0 0 1px rgba(22, 58, 109, 0.12);
+}
+
+.food-name {
+  min-height: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccd8ed;
+  background: #ffffff;
+  color: var(--text-dark);
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.food-row input[type="number"] {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #bccae4;
+  background: #ffffff;
+  padding: 7px;
+  color: var(--text-dark);
+  box-sizing: border-box;
+}
+
+.food-row-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-row-remove {
+  border: none;
+  border-radius: 7px;
+  background: #be4747;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+
+.btn-row-remove:hover {
+  background: #d55a5a;
+}
+
+.btn-add-food {
+  border: none;
+  border-radius: 8px;
+  background: #2f5da0;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.btn-add-food:hover {
+  background: #3f73bf;
+}
+
+.macro-column {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+
+.macro-column p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #29426e;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+  white-space: nowrap;
+}
+
+.macro-column p strong {
+  min-width: 72px;
   text-align: center;
-  height: 20px;
-  padding: 4px;
-  font-size: 15px;
-  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
-  border: black 3px solid;
-  border-radius: 10px;
+  border-radius: 8px;
+  background: #163a6d;
+  color: #ffffff;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  line-height: 1.1;
 }
-.button_de_busca_taco{
-  background-color:rgba(128, 128, 128, 0.519);
-  height: 35px;
-  width:25% ;
-  padding: 4px;
-  user-select: text;
-  color:white;
-  font-size: 16px;
-  border-radius: 10px;
+
+.meal-actions {
+  margin-top: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
+
+.btn-calc,
+.btn-clear,
+.save-diet-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.btn-calc {
+  background: #1f4d91;
+}
+
+.btn-calc:hover {
+  background: #275fb1;
+}
+
+.btn-clear {
+  background: var(--danger);
+}
+
+.btn-clear:hover {
+  background: #e15353;
+}
+
+.save-diet-btn {
+  margin-top: 14px;
+  width: 100%;
+  background: var(--ok);
+  font-size: 1rem;
+  padding: 10px;
+}
+
+.save-diet-btn:hover {
+  background: #2a9652;
+}
+
+.summary-panel {
+  padding: 16px;
+}
+
+.summary-head,
+.summary-row {
+  display: grid;
+  grid-template-columns: 0.7fr 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.summary-head {
+  margin-top: 14px;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #bdd0f0;
+}
+
+.summary-row {
+  margin-top: 7px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 10px;
+  font-size: 0.88rem;
+}
+
+.summary-row strong {
+  color: #ffffff;
+  font-size: 0.85rem;
+}
+
+.summary-totals {
+  margin-top: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.summary-totals > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.summary-totals span {
+  color: #ccdbf4;
+}
+
+.summary-totals strong {
+  color: #ffffff;
+}
+
+.table-panel {
+  padding: 16px;
+  position: static;
+}
+
+.search-form {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.campo_de_busca_taco,
+.taco-create-form input {
+  border-radius: 9px;
+  border: 1px solid #9eb3d9;
+  padding: 8px 10px;
+  color: var(--text-dark);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.button_de_busca_taco {
+  border: none;
+  border-radius: 9px;
+  background: #3a67a9;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.button_de_busca_taco:hover {
+  background: #4b7cc6;
+}
+
+.button_de_busca_taco:disabled,
+.campo_de_busca_taco:disabled,
+.taco-create-form input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.taco-create-mobile-action {
+  display: none;
+}
+
+.taco-create-overlay {
+  display: none;
+}
+
+.taco-create-form {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.taco-create-modal-head {
+  display: none !important;
+}
+
+.taco-create-form button {
+  grid-column: 1 / -1;
+  width: 100%;
+  white-space: nowrap;
+}
+
+#taco-create-name {
+  grid-column: 1 / -1;
+}
+
+.table-wrapper {
+  margin-top: 12px;
+  max-height: 900px;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .body_tabela_Taco {
-  justify-items: center;
   width: 100%;
-  height: 500px;
-  padding: 25px;
-  background-color: rgba(1, 1, 1, 0.6);
-  border-radius: 10px;
+  border-collapse: collapse;
+  min-width: 520px;
+  background: #ffffff;
 }
-/*TITULO DA TABELA TACO */
+
 .titulos_tabela {
-  width: 100%;
-  height: 40px;
-  color: #000000;
-  background-color: #fffcfc;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.titulos_tabela th {
   padding: 10px;
+  background: #123261;
+  color: #ffffff;
+  font-size: 0.9rem;
+  text-align: center;
 }
-.titulos_tabela > tr {
-  width: 100%;
-  height: 100%;
-  padding: 5px;
+
+#alimentos_tabela_Taco tr td {
+  border-bottom: 1px solid #d7e1f2;
+  padding: 8px 6px;
+  color: #10213f;
+  font-size: 0.85rem;
 }
-.th_alimento,
-.th_kcal,
-.th_prot,
-.th_carb,
-.th_gordura {
-  padding: 10px;
-  text-transform: capitalize;
-  font-size: 18px;
+
+#alimentos_tabela_Taco tr td:first-child {
+  text-align: left;
+  width: 45%;
 }
-/*DADOS DA TABELA TACO */
-#alimentos_tabela_Taco {
-  width: 100%;
-  height: 100px;
-  max-height: 750px;
-  overflow-y: scroll;
-  background-color: white;
-}
-#alimentos_tabela_Taco > tr {
-  display: table-row;
-  width: 90%;
-  height: 10px;
-  padding: 10px;
-  font-size: 16px;
-  cursor: grabbing;
-}
+
 .td_kcal,
 .td_prot,
 .td_carb,
 .td_gordura {
   text-align: center;
 }
-.td_kcal {
-  padding-left: 8px;
-  padding-right: 8px;
+
+.row_alimentos {
+  cursor: pointer;
+  transition: 0.16s ease;
 }
-#alimentos_tabela_Taco > tr:nth-child(even):hover {
-  background-color: #0e274d;
-  color: #fffcfc;
+
+#alimentos_tabela_Taco tr:nth-child(odd) {
+  background: #f4f7fd;
 }
-#alimentos_tabela_Taco > tr:nth-child(odd) {
-  background-color: #c4c4c4;
+
+#alimentos_tabela_Taco tr:hover {
+  background: #d8e7ff;
 }
-#alimentos_tabela_Taco > tr:nth-child(odd):hover {
-  background-color: darkorange;
-  color: white;
-}
-@media  (max-width: 3200px){
-  .body_tabela_taco{
-    width: 1000px;
-    height: 1800px;
+
+@media (max-width: 1640px) {
+  .body_create_diet {
+    grid-template-columns: minmax(650px, 1fr) minmax(460px, 0.9fr);
   }
-  .body_dados_refeicao{
-    width: 1000px;
-    height: 1600px;
+
+  .meal-grid {
+    grid-template-columns: 1fr;
   }
 }
-@media  (max-width: 2350px){
-  .body_tabela_taco{
-    width: 900px;
-    height: 1800px;
+
+@media (max-width: 1180px) {
+  .body_create_diet {
+    grid-template-columns: 1fr;
   }
-  .body_dados_refeicao{
-    width: 900px;
-    height: 1600px;
+
+  .side-column {
+    gap: 12px;
   }
-}
-@media only screen and (max-width: 1920px) {
-  .body_tabela_taco{
-    width: 700px;
-    height: 1800px;
+
+  .summary-panel {
+    display: block;
   }
-  .body_dados_refeicao{
-    width: 700px;
-    height: 1600px;
+
+  .table-panel {
+    position: static;
   }
-  .div_opçoes_de_ref {
-    width: 95%;
-    height: 80%;
-    grid: opçoes;
-    background-color: #ffffff;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+
   .container_dados_dieta_user {
-    width: 92%;
-    height: 85%;
-    background-color: #c4c4c4;
-    border-radius: 15px;
-    box-shadow: black 5px 3px 8px 3px;
-    display: flex;
-    flex-direction: row;
+    grid-template-columns: repeat(2, minmax(170px, 1fr));
+  }
+
+  .taco-create-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .taco-create-form button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .body_create_diet {
+    width: 94vw;
+    margin-top: 14px;
+    gap: 12px;
+  }
+
+  .container_dados_dieta_user {
+    grid-template-columns: 1fr;
+  }
+
+  .meal-body {
+    grid-template-columns: 1fr;
+  }
+
+  .search-form {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-toggle-btn {
+    width: 100%;
+  }
+
+  .taco-create-mobile-action {
+    margin-top: 10px;
+    display: block;
+  }
+
+  .taco-create-form {
+    display: none;
+  }
+
+  .taco-create-form.is-open {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    position: fixed;
+    inset: auto 10px 10px 10px;
+    z-index: 1200;
+    margin-top: 0;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: linear-gradient(160deg, #122b54 0%, #1c3e76 100%);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.38);
+  }
+
+  .taco-create-form.is-open .taco-create-modal-head {
+    display: flex !important;
     justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    text-align: justify;
-    gap: 20px;
+    grid-column: 1 / -1;
   }
-  .dados_dieta_user_linha1 {
-    width: 20%;
-    height: 85%;
-    background-color: #ffffff;
-    display: flex;
-    text-align: start;
-    flex-direction: column;
-    justify-content: space-around;
-    font-weight: 600;
-    border-radius: 10px;
-    padding: 10px;
-  }
-  .dados_dieta_user_linha1 > label > strong {
-    padding: 2px;
-    padding-right: 6px;
-    padding-left: 6px;
-    color: #fffcfc;
-    background-color: #0e274d;
-  }
-  .dados_dieta_user_linha2 {
-    background-color: #ffffff;
-    width: 25%;
-    height: 85%;
-    display: flex;
-    text-align: start;
-    flex-direction: column;
-    justify-content: space-around;
-    border-radius: 10px;
-    font-weight: 600;
-    padding: 10px;
-  }
-  .dados_dieta_user_linha2 > label > strong {
-    padding: 2px;
-    padding-right: 6px;
-    padding-left: 6px;
-    color: #fffcfc;
-    background-color: #0e274d;
-  }
-  .dados_dieta_user_linha3 {
-    background-color: #ffffff;
-    width: 35%;
-    height: 85%;
-    display: flex;
-    text-align: start;
-    flex-direction: column;
-    justify-content: space-around;
-    border-radius: 10px;
-    font-weight: 600;
-    padding: 10px;
-  }
-  .dados_dieta_user_linha3 > label > strong {
-    padding: 2px;
-    padding-right: 6px;
-    padding-left: 6px;
-    color: #fffcfc;
-    background-color: #0e274d;
-  }
-  .dados_dieta_user_opcoes {
-    width: 150px;
-    height: 75%;
-    background-color: #ffffff;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px;
-    justify-items: center;
-    font-weight: 700;
-    gap: 7px;
-  }
-  .dados_dieta_user_quant_prot > span > select {
-    width: 100%;
-    text-align: center;
-  }
-  .dados_dieta_user_quant_ref > span > select {
-    width: 100%;
-    text-align: center;
-  }
-  .button_macros {
-    width: 100%;
-    font-weight: 700;
-    border: #000000 solid 1px;
-    border-radius: 15px;
-    color: darkorange;
-    background-color: #0e274dc4;
-  }
-  .button_macros:hover {
-    width: 100%;
-    font-weight: 600;
-    border: #000000 solid 1px;
-    border-radius: 15px;
-    color: white;
-    background-color: #0e274d;
-    transition: 1s;
-  }
-  /*refeiçoes e macros da refeição*/
-  .container_refeiçoes_user {
-    width: 85%;
-    height: 95%;
-    grid: refeicoes;
-    background-color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    border-radius: 15px;
-    padding: 15px;
-    gap: 15px;
-  }
-  .refeicoes_user_one,
-  .refeicoes_user_two,
-  .refeicoes_user_tree,
-  .refeicoes_user_four,
-  .refeicoes_user_five,
-  .refeicoes_user_six {
-    width: 95%;
-    height: 160px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    border-radius: 15px;
-    padding: 10px;
-    background-color: #c4c4c4;
-  }
-  .alimentos_refeicoes_one,
-  .alimentos_refeicoes_two,
-  .alimentos_refeicoes_tree,
-  .alimentos_refeicoes_four,
-  .alimentos_refeicoes_five,
-  .alimentos_refeicoes_six {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    width: 50%;
-    height: 100%;
-    background-color: white;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 5px;
-    font-size: 18px;
-    overflow: hidden;
-  }
-  .macros_refeicoes_one,
-  .macros_refeicoes_two,
-  .macros_refeicoes_tree,
-  .macros_refeicoes_four,
-  .macros_refeicoes_five,
-  .macros_refeicoes_six {
-    display: flex;
-    flex-direction: column;
-    width: 35%;
-    height: 100%;
-    background-color: white;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 5px;
-    font-size: 15px;
-  }
-}
-@media (max-width: 1820px) {
-  .body_tabela_taco{
-    width: 650px;
-    height: 1800px;
-  }
-  .body_dados_refeicao{
-    width: 650px;
-    height: 1600px;
-  }
-  .div_opçoes_de_ref {
-    width: 95%;
-    height: 80%;
-    grid: opçoes;
-    background-color: #ffffff;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;  
-  }
-  .container_dados_dieta_user {
-    width: 95%;
-    height: 90%;
-    gap: 20px;
-    padding: 5px;
-  }
-  .dados_dieta_user_linha1 {
-    width: 20%;
-    height: 90%;
-    background-color: #ffffff;
-    display: flex;
-    text-align: start;
-    flex-direction: column;
-    justify-content: space-around;
-    font-weight: 200;
-    border-radius: 10px;
-    padding: 5px;
-  }
-  .container_refeiçoes_user{
-    width: 90%;
-  }
-}
-@media(max-width: 1500px) {
-  .body_tabela_taco{
-    width: 600px;
-    height: 1800px;
-  }
-  .body_dados_refeicao{
-    width: 600px;
-    height: 1600px;
-  }
-  
-  .dados_dieta_user_opcoes{
-    width: 25%;
-    height: 80%;
-    background-color: #ffffff;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px;
-    justify-items: center;
-    font-weight: 600;
-    gap: 7px;
-  }
-  .campo_de_busca_taco{
-    width: 100%;
-  }
-  .bodyButtonBuscar{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    height: 100px;
-  }
-}
-@media(max-width: 1275px) {
-  .container_tabela_taco {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    justify-items: center;
-    background-color: rgba(1, 1, 1, 0.8);
-    margin-top: 30px;
-    padding: 30px;
-    text-transform: capitalize;
-    gap: 10px;
-    border-radius: 15px;
-    overflow-y: scroll;
-  }
-  .body_create_diet{
-    width: 95%;
-    height: 100%;
-    flex-direction: column-reverse;
-    justify-content: center;
-    align-items: center;
 
+  .taco-create-modal-head h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #ffffff;
   }
-  .bodyButtonBuscar{
-    position: relative;
+
+  .btn-close-create {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    padding: 6px 10px;
+    font-weight: 700;
+    cursor: pointer;
   }
-  .body_tabela_taco{
-    width: 900px;
-    height: 500px;
+
+  .taco-create-form.is-open #taco-create-name,
+  .taco-create-form.is-open button[type="submit"] {
+    grid-column: 1 / -1;
   }
-  .body_dados_refeicao{
-    margin-top: 5rem;
-    width: 950px;
-    height: 100%;
+
+  .taco-create-overlay.is-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1150;
+    background: rgba(5, 12, 24, 0.65);
   }
- }
- @media( max-width: 800px){
-  .body_create_diet{
-    width: 95%;
-    height: 100%;
-    flex-direction: row-reverse;
-    justify-content: space-around;
-  }
-  .bodyButtonBuscar{
-    position: relative;
-  }
-  .body_tabela_taco{
-    width: 300px;
-    height: 200px;
-    overflow-y: scroll;
-    background-color: #0e274d;
-  }
-  .body_dados_refeicao{
-    width: 500px;
-    height: 1600px;
-  }
- }
+}

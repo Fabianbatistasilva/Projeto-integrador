@@ -1,137 +1,499 @@
-*{
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+.diet-screen-page {
+    --diet-bg: #ecf3ff;
+    --diet-card: #ffffff;
+    --diet-ink: #10294d;
+    --diet-ink-soft: #355275;
+    --diet-border: #c9d7ee;
+    --diet-accent: #ff9f1a;
+    --diet-accent-dark: #d67a00;
+    --diet-highlight: #0c3d78;
+    max-width: 1200px;
+    margin: 1.5rem auto 2.5rem;
+    padding: clamp(1rem, 2vw, 1.6rem);
+    border-radius: 1.2rem;
+    border: 1px solid var(--diet-border);
+    background:
+        radial-gradient(circle at 90% -10%, #9ab8e8 0%, rgba(154, 184, 232, 0) 42%),
+        radial-gradient(circle at -8% 85%, #c7daf7 0%, rgba(199, 218, 247, 0) 36%),
+        linear-gradient(135deg, #f3f8ff 0%, var(--diet-bg) 58%, #e6f0ff 100%);
+    box-shadow: 0 24px 50px rgba(6, 29, 58, 0.18);
+    color: var(--diet-ink);
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    animation: dietFadeIn 360ms ease;
+}
+
+.diet-screen-page h1,
+.diet-screen-page h2 {
     margin: 0;
-    padding: 0;
+    font-family: "DM Serif Display", "Times New Roman", serif;
+    color: #0c315f;
+    letter-spacing: 0.02em;
 }
 
-.diet{
-    background-image:url("https://www.paho.org/sites/default/files/alimentacao-saudavel-diversificada.jpg");
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-attachment: fixed;
-    height: 100vh;
+.diet-screen-page p {
+    margin: 0.25rem 0 0;
+    color: var(--diet-ink-soft);
 }
 
-table{
-    width: 900px;
-    margin-top: 30px;
-    background-color: #0e274de7;
-    border-radius: 5px;
-    box-shadow: #000000 10px 10px 10px 10px;
-    justify-items: center;
-    margin: 0 auto;
-    padding: 2rem;
-}
-.value_diet{
-    width: 100%;
+.diet-hero {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
     align-items: center;
+    padding: 0.9rem 1.1rem;
+    border-radius: 1rem;
+    background: linear-gradient(120deg, #d8e7fb 0%, #f1f7ff 100%);
+    border: 1px solid var(--diet-border);
 }
-.value_diet > table{
-    display: flex;
-    flex-direction: column ;
-    color: white;
-    
 
+.diet-hero h1 {
+    font-size: clamp(1.6rem, 3vw, 2rem);
 }
-.button_print{
-    width: 20%;
+
+.diet-screen-page .button_print {
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.8rem 1.4rem;
+    min-width: 11rem;
+    background: linear-gradient(140deg, var(--diet-accent) 0%, #ffbb66 100%);
+    color: #2c1d02;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    box-shadow: 0 10px 20px rgba(214, 122, 0, 0.26);
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.diet-screen-page .button_print:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(140deg, #ffb347 0%, #ffd08f 100%);
+    box-shadow: 0 14px 24px rgba(214, 122, 0, 0.3);
+}
+
+.macro-total-panel {
     margin-top: 1rem;
-    font-size: 1rem;
-    text-transform: capitalize;
-    padding: 10px;
-    border-radius: 5px;
-    appearance: none;
-    color: black;
-    background-color: gray;
-    cursor: grab;
-    color: white;
-}
-.button_print:hover{
-    color: greenyellow;
-    cursor: grab;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
 }
 
-.value_diet > table > thead > tr > th{
- 
-    border-radius: 5px;
-    text-align: center ;
-    width: 450px;
-    font-size: 30px;
+.macro-total-card {
+    background: linear-gradient(160deg, #ffffff 0%, #f5f9ff 100%);
+    border: 1px solid #bfd0ea;
+    border-radius: 0.9rem;
+    padding: 0.95rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 8px 16px rgba(16, 41, 77, 0.08);
 }
 
-.value_diet > table > tbody > tr > td{
-    border: solid 1px black;
-    border-radius: 5px;
-    width: 450px;
-    padding: 5px;
-    padding-left: 10px;   
+.macro-total-card span {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #4a6688;
 }
 
-.quant{
-    text-align: center ;
-    font-size: 25px;
+.macro-total-card strong {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--diet-highlight);
 }
 
-.nun_ref{
-    width: 900px;
-    display: flex;
-    justify-content: center;
+.meal-list {
+    margin-top: 1rem;
+    display: grid;
+    gap: 1rem;
 }
 
-.nome{
-    font-size: 25px;
+.meal-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f2f7ff 100%);
+    border: 1px solid var(--diet-border);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 14px 26px rgba(7, 28, 56, 0.12);
 }
 
-@media (max-width: 414px) {
+.meal-card > header {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #d4e0f4;
+    background: linear-gradient(90deg, #0f3d78 0%, #1d559a 100%);
+}
 
-    table{
-        width: 500px;
-        margin-top: 30px;
-        background-color: #0e274de7;
-        border-radius: 5px;
-        box-shadow: #000000 10px 10px 10px 10px;
-        justify-items: center;
-        margin: 0 auto;
+.meal-card h2 {
+    color: #ffffff;
+    font-size: 1.45rem;
+}
+
+.meal-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.meal-table thead th {
+    padding: 0.75rem 0.9rem;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #5a7496;
+    background-color: #edf3ff;
+}
+
+.meal-table tbody td {
+    padding: 0.78rem 0.9rem;
+    border-top: 1px solid #dbe5f4;
+    color: #19365d;
+    font-size: 0.95rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.meal-table tbody tr:nth-child(even) td {
+    background-color: #f8fbff;
+}
+
+.meal-table .qty-cell {
+    width: 170px;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: 800;
+    color: #0b386d;
+}
+
+.meal-table .macros-cell {
+    min-width: 280px;
+    font-size: 0.86rem;
+    color: #35506f;
+}
+
+.meal-table .macros-cell strong {
+    color: #0b2f59;
+}
+
+.print-plan {
+    display: none;
+}
+
+@keyframes dietFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
     }
-    
-    .value_diet > table > thead > tr > th{
- 
-        border-radius: 5px;
-        text-align: center ;
-        width: 250px;
-        font-size: 20px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    .value_diet > table > tbody > tr > td{
-        border: solid 1px black;
-        border-radius: 5px;
-        width: 250px;
-        padding: 5px;
-        padding-left: 10px;   
+}
+
+@media (max-width: 900px) {
+    .diet-screen-page {
+        border-radius: 0.9rem;
+        margin: 1rem 0.75rem 1.8rem;
     }
-    
-    .quant{
-        text-align: center ;
-        font-size: 15px;
+
+    .meal-card h2 {
+        font-size: 1.22rem;
     }
-    
-    .nun_ref{
-        width: 500px;
+
+    .meal-table .qty-cell {
+        width: 120px;
+    }
+}
+
+@media (max-width: 680px) {
+    .diet-hero {
+        padding: 0.85rem;
+    }
+
+    .diet-screen-page .button_print {
+        width: 100%;
+    }
+
+    .meal-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .meal-table .macros-cell {
+        min-width: 360px;
+    }
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .diet-screen-page > * {
+        display: none !important;
+    }
+
+    .diet-screen-page .print-plan {
+        display: block !important;
+    }
+
+    .diet-screen-page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: #ffffff;
+        box-shadow: none;
+        color: #111111;
+    }
+
+    .print-head-meta {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 4mm;
+        margin-bottom: 4mm;
+        font-size: 8.5pt;
+        color: #556b89;
+    }
+
+    .print-head-meta-center {
+        text-align: center;
+        font-weight: 800;
+        color: #183b66;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .print-head-meta-right {
+        text-align: right;
+    }
+
+    .print-plan-header {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 6mm;
+        padding: 4mm;
+        border: 1px solid #c3d0e3;
+        border-radius: 2.4mm;
+        background: linear-gradient(120deg, #eff4fc 0%, #f9fbff 100%);
     }
-    
-    .nome{
-        font-size: 15px;
+
+    .print-brand-block {
+        display: flex;
+        align-items: center;
+        gap: 3.5mm;
     }
-}
 
+    .print-brand-block img {
+        width: 34mm;
+        height: auto;
+        object-fit: contain;
+    }
 
+    .print-plan-header h1 {
+        margin: 0;
+        font-size: 18pt;
+        color: #0f315c;
+        letter-spacing: 0.02em;
+    }
 
-@media print{
-    .button_print{
-        display: none;
+    .print-plan-header p {
+        margin: 1.5mm 0 0;
+        color: #425a78;
+        font-size: 9.5pt;
+    }
+
+    .print-plan-meta {
+        display: grid;
+        justify-items: end;
+        gap: 1mm;
+        font-size: 10pt;
+        color: #3f5570;
+        white-space: nowrap;
+    }
+
+    .print-client-grid {
+        margin-top: 3.5mm;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2.5mm;
+    }
+
+    .print-client-grid > div {
+        border: 1px solid #cfdaea;
+        border-radius: 2mm;
+        padding: 2mm 2.3mm;
+        background: #fdfefe;
+    }
+
+    .print-client-grid span {
+        display: block;
+        font-size: 8.3pt;
+        color: #6a7f99;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .print-client-grid strong {
+        display: block;
+        margin-top: 0.8mm;
+        color: #183a63;
+        font-size: 10.2pt;
+        line-height: 1.2;
+    }
+
+    .print-plan-totals {
+        margin-top: 4mm;
+        margin-bottom: 6mm;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3mm;
+    }
+
+    .print-plan-totals > div {
+        border: 1px solid #b9c9df;
+        border-radius: 2mm;
+        padding: 2.5mm;
+        background: linear-gradient(120deg, #f4f8ff 0%, #ebf2ff 100%);
+    }
+
+    .print-plan-totals span {
+        display: block;
+        font-size: 8.2pt;
+        color: #526a8a;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .print-plan-totals strong {
+        display: block;
+        margin-top: 1mm;
+        font-size: 11pt;
+        color: #102c53;
+    }
+
+    .print-meal-summary {
+        margin-bottom: 5mm;
+    }
+
+    .print-meal-summary h2 {
+        margin: 0 0 2mm;
+        font-size: 11.5pt;
+        color: #123861;
+    }
+
+    .print-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9pt;
+    }
+
+    .print-summary-table th,
+    .print-summary-table td {
+        border: 1px solid #d0dceb;
+        padding: 2mm;
+        text-align: left;
+    }
+
+    .print-summary-table thead th {
+        background: #edf4ff;
+        color: #29496e;
+        font-size: 8.4pt;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .print-summary-table tbody tr:nth-child(even) td {
+        background: #f9fbff;
+    }
+
+    .print-meal-block {
+        margin-bottom: 5mm;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #d0daea;
+        border-radius: 2mm;
+        overflow: hidden;
+    }
+
+    .print-meal-block h2 {
+        margin: 0;
+        padding: 2.3mm;
+        font-size: 12pt;
+        color: #ffffff;
+        background: linear-gradient(90deg, #123d72 0%, #1d538f 100%);
+    }
+
+    .print-meal-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9.4pt;
+    }
+
+    .print-meal-table th,
+    .print-meal-table td {
+        border: 1px solid #d2dbea;
+        padding: 2.3mm;
+        text-align: left;
+    }
+
+    .print-meal-table thead th {
+        background: #eff4fc;
+        color: #223e63;
+        font-size: 8.8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .print-meal-table tbody td {
+        color: #1b2f4c;
+    }
+
+    .print-meal-table tbody tr:nth-child(even) td {
+        background: #fafcff;
+    }
+
+    .print-meal-table tfoot th {
+        background: #eef4ff;
+        color: #102f59;
+        font-weight: 800;
+    }
+
+    .print-empty {
+        margin-top: 4mm;
+        padding: 4mm;
+        border: 1px dashed #c8d3e3;
+        color: #4b5f7d;
+        font-size: 10pt;
+    }
+
+    .print-plan-footer {
+        margin-top: 4mm;
+        padding-top: 2.5mm;
+        border-top: 1px solid #d2dceb;
+        display: grid;
+        gap: 1mm;
+    }
+
+    .print-plan-footer p {
+        margin: 0;
+        color: #5a6f8a;
+        font-size: 8.6pt;
+    }
+
+    .print-plan-footer p:last-child {
+        color: #203f65;
+        font-weight: 700;
     }
 }

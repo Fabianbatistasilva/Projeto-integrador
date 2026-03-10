@@ -1,73 +1,94 @@
-{% extends 'base.html'%} 
-{% load static %} 
-{% block 'title' %}Home{%endblock%} 
-{%block 'sections'%}
-<div class="container_main">
-  <div class="containar_welcome">
-    <div class="div_message_wel">
-      <label for="">Welcome</label>
-    </div>
-  </div>
-  <div class="div_introduçao">
-    <div class="conteudo_alimentar">
-      <div class="text_alimentar">
-        <label for="">
-          <h3>Benefícios da alimentação saudável</h3>
+{% extends 'base.html' %}
+{% load static %}
+{% block 'title' %}Home{% endblock %}
+{% block 'extra_css' %}
+  <link rel="stylesheet" href="{% static 'css/home.css' %}?v=20260310-5" />
+{% endblock %}
+{% block 'sections' %}
+  <div class="container_main">
+    <section class="containar_welcome">
+      <div class="div_message_wel">
+        <h1>Planeje sua dieta com dados reais</h1>
+        <p>
+          Defina metas de calorias e macros, monte refeicoes com a Tabela TACO
+          e acompanhe seus totais diarios em uma unica plataforma.
+        </p>
+        <div class="hero_badges">
+          <span><i class="fa-solid fa-bolt"></i> TMB automatica</span>
+          <span><i class="fa-solid fa-chart-line"></i> Metas por refeicao</span>
+          <span><i class="fa-solid fa-utensils"></i> TACO integrada</span>
+        </div>
+        <div class="hero_actions">
+          {% if user.is_authenticated %}
+            <a href="{% url 'criar_dieta' %}" class="hero_btn hero_btn_primary">Criar dieta agora</a>
+            <a href="{% url 'diet_screen' %}" class="hero_btn hero_btn_secondary">Ver dieta salva</a>
+          {% else %}
+            <a href="{% url 'login_site' %}" class="hero_btn hero_btn_primary">Entrar no sistema</a>
+            <a href="{% url 'registration_screen' %}" class="hero_btn hero_btn_secondary">Criar conta</a>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section class="div_introducao">
+      <article class="conteudo_alimentar">
+        <div class="text_alimentar">
+          <h3><i class="fa-solid fa-compass"></i> O que voce resolve aqui</h3>
           <p>
-            A alimentação saudável traz benefícios para a saúde como melhor
-            controle do peso, rendimento do trabalho, aumento da memória e da
-            concentração, fortalecimento do sistema imunológico e prevenção de
-            doenças.
+            Este sistema foi feito para transformar calculos nutricionais em
+            acao pratica. Em poucos passos voce define objetivo, calcula a base
+            calorica e monta um cardapio completo por refeicao.
           </p>
           <ul>
-            <li>Proporciona uma boa noite de sono</li>
-            <li>Proporciona mais longevidade</li>
-            <li>Boa atividade cerebral</li>
+            <li>Calculo de TMB e gasto diario</li>
+            <li>Distribuicao automatica de macros por refeicao</li>
+            <li>Resumo diario consolidado com quantidade e calorias</li>
           </ul>
-        </label>
-      </div>
-      <a href="{% url 'introdução' %}">
-        Dê seus primeiros passos <i class="fa-solid fa-shoe-prints"></i
-      ></a>
-    </div>
-    <div class="conteudo_sobre_site">
-      <div class="text_sobre_site">
-        <label for="">
-          <h2>Jovem Programador Nutrients</h2>
+        </div>
+
+        {% if user.is_authenticated %}
+          <a href="{% url 'criar_dieta' %}" class="home_action">
+            Ir para o planejador <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        {% else %}
+          <a href="{% url 'login_site' %}" class="home_action">
+            Entrar para montar dieta <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        {% endif %}
+      </article>
+
+      <article class="conteudo_sobre_site">
+        <div class="text_sobre_site">
+          <h2><i class="fa-solid fa-diagram-project"></i> Fluxo do sistema</h2>
           <p>
-            Projeto realizado pelo os alunos
-            <a href="https://github.com/vitoradsp">Vitor</a>,
-            <a href="https://github.com/Fabianbatistasilva">Fabian Batista</a> e
-            <a href="https://github.com/CorteRealRodrigo">Rodrigo Corte</a> em
-            conjuto ao
-            <a href="https://portal.sc.senac.br/portal/home/default.aspx"
-              >Senac</a
-            >
-            Usando a linguagem Python com o framework Django
+            Comece pela tela de objetivo para informar sexo, idade, peso, altura
+            e nivel de atividade. O sistema gera sua meta diaria e prepara os
+            limites por refeicao.
           </p>
           <p>
-            Neste projeto realizado no nicho de saúde e bem-estar utilizamos uma
-            <a href="https://github.com/vitoradsp/API-Taco"
-              >Api da tabela Taco</a
-            >
-            que nós mesmo criamos para realizamos um site unico e propor uma
-            quantidade de alimentos para facilitar o alcance ao seu objetivo,
-            seja ele bem-estar ou ambição de um corpo atletico
+            Depois, na tela de criacao de dieta, voce seleciona alimentos da
+            TACO, informa quantidades em gramas, calcula os macros e salva seu
+            cardapio para revisao.
           </p>
-        </label>
-      </div>
-      <div class="nosso_link">
-        <label for=""
-          ><a href="https://www.linkedin.com/in/vitor-pinheiro-a86b29234/"><i class="fa-brands fa-linkedin-in"></i> Vitor</a>
-          <a href="https://www.linkedin.com/in/fabian-batista-965420214/">
-            <i class="fa-brands fa-linkedin-in"></i> Fabian
-          </a>
-          <a href="https://www.linkedin.com/in/rodrigo-corte-real-b5640023b/">
-            <i class="fa-brands fa-linkedin-in"></i> Rodrigo
-          </a>
-        </label>
-      </div>
-    </div>
+        </div>
+
+        <div class="quick_actions">
+          <h4>Acessos rapidos</h4>
+          <div class="nosso_link">
+            <a href="{% url 'introducao' %}" class="quick-btn quick-btn-blue">
+              Guia de objetivos <i class="fa-solid fa-book-open"></i>
+            </a>
+            <a href="{% url 'tela_tmb' %}" class="quick-btn quick-btn-orange">
+              Ajustar metas <i class="fa-solid fa-sliders"></i>
+            </a>
+            {% if user.is_authenticated %}
+              <a href="{% url 'diet_screen' %}" class="quick-btn quick-btn-blue">
+                Ver dieta salva <i class="fa-solid fa-bowl-food"></i>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    </section>
   </div>
-</div>
-{%endblock%}
+{% endblock %}

@@ -1,90 +1,169 @@
-/*tela tmb*/
-.tela_tmb{
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    background-image:url("https://boaforma.abril.com.br/wp-content/uploads/sites/2/2018/06/dieta-mediterranea-alimentacao-saudavel.jpg");
-}
-.tela_tmb > form{
-    margin-top: 100px;
-    width: 700px;
-    height: 800px;
-    background-color: #0e274de7;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-shadow: #000000 10px 10px 10px 10px;
-}
-.peso, .altura, .idade, .sexo, .objetivo, .nivel_ati{
-    margin-top: 10px;
+.tela_tmb {
+  --panel-bg: linear-gradient(155deg, rgba(15, 35, 68, 0.94) 0%, rgba(26, 57, 103, 0.9) 100%);
+  --card-bg: linear-gradient(165deg, #f7fbff 0%, #edf3ff 100%);
+  --accent: #ff9c2f;
+  --accent-dark: #ea7b00;
+  min-height: calc(100vh - 140px);
+  padding: 28px 16px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-image: url("https://boaforma.abril.com.br/wp-content/uploads/sites/2/2018/06/dieta-mediterranea-alimentacao-saudavel.jpg");
+  background-size: cover;
+  background-position: center;
+  position: relative;
 }
 
-.tela_tmb > form > .objetivo > p, .peso > p, .altura > p, .idade > p, .sexo > p, .objetivo > p, .nivel_ati > p{
-    margin: 0;
-    color: white;
-    font-size: 30px;
+.tela_tmb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(7, 20, 40, 0.35) 0%, rgba(7, 20, 40, 0.58) 100%);
 }
-.objetivo > input, .peso > input, .altura > input, .idade > input, .sexo > input, .nivel_ati{
-    font-size: 18px;
-    width: 100px;
-    text-align: center;
-}
-.valor_tmb{
-    display: none;
-    /*display: flex;*/
-    flex-direction: column;
-    border: solid 2px white;
-    padding: 0 10px 10px 10px;
-}
-.valor_tmb > h2{
-    color: white;
-}
-.valor_tmb > label{
-    font-weight: bold;
-    color: white;
 
+.tmb-form {
+  position: relative;
+  z-index: 1;
+  width: min(920px, 96vw);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--panel-bg);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  padding: 22px;
+  display: grid;
+  gap: 16px;
 }
-.objetivo > select, .nivel_ati > select{
-    font-size: 20px;
+
+.valor_tmb {
+  display: none;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  background: rgba(10, 26, 54, 0.5);
+  padding: 14px;
 }
-.sexo{
-    color: white;
-    margin-right: -40px;
+
+.valor_tmb h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.45rem;
 }
-.btn_tmb{
-    margin-top: 20px;
-    margin-left: 20px;
-    font-size: 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 270px;
-    text-align: center;
+
+.valor_tmb p {
+  margin: 0;
+  color: #dbe7ff;
+  line-height: 1.4;
+  font-size: 0.95rem;
 }
-.btn_tmb1{
-    margin-top: 10px;
-    font-size: 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 150px;
-    margin: auto;
-    margin-top: 10px;
-    text-align: center;
+
+.valor_tmb strong {
+  color: #ffffff;
 }
-.objetivo{
-    margin-right: -30px;
+
+.tmb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 12px;
 }
-.nivel_ati{
-    margin-left: -10px;
+
+.field-card {
+  background: var(--card-bg);
+  border: 1px solid #d3dff6;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
 }
-.btn_tmb1:hover,.btn_tmb:hover{
-    color: yellowgreen;
+
+.field-card label,
+.field-card span {
+  color: #14325d;
+  font-size: 0.95rem;
+  font-weight: 700;
 }
-@media (max-width: 820px) {
-    .tela_tmb > form{
-        padding-top: 40px;
-        margin-top: 0px;
-    }
+
+.field-card input,
+.field-card select {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #b8c9ea;
+  background: #ffffff;
+  color: #10213f;
+  font-size: 0.95rem;
+  padding: 8px 10px;
+  box-sizing: border-box;
+}
+
+.field-card input:focus,
+.field-card select:focus {
+  outline: 2px solid rgba(47, 97, 175, 0.45);
+  outline-offset: 0;
+}
+
+.sexo {
+  align-content: start;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #163c72;
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.radio-option input {
+  width: 16px;
+  height: 16px;
+}
+
+.btn_tmb,
+.btn_tmb1 {
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn_tmb {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 1rem;
+  background: linear-gradient(120deg, var(--accent), var(--accent-dark));
+}
+
+.btn_tmb:hover {
+  filter: brightness(1.08);
+}
+
+.btn_tmb1 {
+  margin-top: 2px;
+  width: 220px;
+  max-width: 100%;
+  padding: 9px 12px;
+  font-size: 0.96rem;
+  background: linear-gradient(120deg, #1f7a45, #2f9d5a);
+}
+
+.btn_tmb1:disabled {
+  background: #6c7687;
+  cursor: not-allowed;
+  filter: none;
+}
+
+@media (max-width: 860px) {
+  .tela_tmb {
+    padding: 16px 10px 24px;
+  }
+
+  .tmb-form {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .tmb-grid {
+    grid-template-columns: 1fr;
+  }
 }

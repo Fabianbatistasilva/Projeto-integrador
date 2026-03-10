@@ -1,5 +1,5 @@
-from multiprocessing.sharedctypes import Value
 from django.db import models
+from django.db.models import Sum
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -175,8 +175,14 @@ class ImprimirDieta(models.Model):
     
     def __str__(self):
         return self.usuario.username
+
+    def _has_related_items(self):
+        return self.itens.exists()
     
     def total_caloria(self):
+        if self._has_related_items():
+            return self.itens.aggregate(total=Sum('kcal')).get('total') or 0
+
         ref1 = self.kcal_11 + self.kcal_12 + self.kcal_13 
         ref2 = self.kcal_21 + self.kcal_22 + self.kcal_23 
         ref3 = self.kcal_31 + self.kcal_32 + self.kcal_33
@@ -187,6 +193,9 @@ class ImprimirDieta(models.Model):
 
 
     def total_proteina(self):
+        if self._has_related_items():
+            return self.itens.aggregate(total=Sum('prot')).get('total') or 0
+
         ref1 = self.prot_11 + self.prot_12 + self.prot_13 
         ref2 = self.prot_21 + self.prot_22 + self.prot_23 
         ref3 = self.prot_31 + self.prot_32 + self.prot_33
@@ -196,6 +205,9 @@ class ImprimirDieta(models.Model):
         return ref1 + ref2 + ref3  + ref4 + ref5 + ref6
     
     def total_carboidratos(self):
+        if self._has_related_items():
+            return self.itens.aggregate(total=Sum('carb')).get('total') or 0
+
         ref1 = self.carb_11 + self.carb_12 + self.carb_13 
         ref2 = self.carb_21 + self.carb_22 + self.carb_23 
         ref3 = self.carb_31 + self.carb_32 + self.carb_33
@@ -205,6 +217,9 @@ class ImprimirDieta(models.Model):
         return ref1 + ref2 + ref3  + ref4 + ref5 + ref6
 
     def total_gordura(self):
+        if self._has_related_items():
+            return self.itens.aggregate(total=Sum('gord')).get('total') or 0
+
         ref1 = self.gord_11 + self.gord_12 + self.gord_13 
         ref2 = self.gord_21 + self.gord_22 + self.gord_23 
         ref3 = self.gord_31 + self.gord_32 + self.gord_33
@@ -213,4 +228,19 @@ class ImprimirDieta(models.Model):
         ref6 = self.gord_61 + self.gord_62 + self.gord_63
         return ref1 + ref2 + ref3  + ref4 + ref5 + ref6
 
-    
+class ItemRefeicao(models.Model):
+    dieta = models.ForeignKey(ImprimirDieta, on_delete=models.CASCADE, related_name='itens')
+    refeicao = models.PositiveSmallIntegerField()
+    ordem = models.PositiveIntegerField(default=1)
+    alimento = models.CharField(max_length=255)
+    quantidade = models.PositiveIntegerField(default=0)
+    kcal = models.IntegerField(default=0)
+    prot = models.IntegerField(default=0)
+    gord = models.IntegerField(default=0)
+    carb = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['refeicao', 'ordem', 'id']
+
+    def __str__(self):
+        return f'{self.dieta.usuario.username} - {self.refeicao}a refeicao - {self.alimento}'

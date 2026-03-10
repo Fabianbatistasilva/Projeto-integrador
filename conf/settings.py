@@ -10,8 +10,30 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+from urllib.parse import urlparse
+
+from django.core.exceptions import ImproperlyConfigured
+
+try:
+    import dj_database_url
+except ImportError:
+    dj_database_url = None
+
+try:
+    import django_redis  # noqa: F401
+except ImportError:
+    HAS_DJANGO_REDIS = False
+else:
+    HAS_DJANGO_REDIS = True
+
+try:
+    import whitenoise  # noqa: F401
+except ImportError:
+    HAS_WHITENOISE = False
+else:
+    HAS_WHITENOISE = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +42,40 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
+def env_bool(name, default=False):
+    value = str(os.getenv(name, str(default))).strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def env_list(name, default=""):
+    raw_value = str(os.getenv(name, default))
+    return [item.strip() for item in raw_value.split(",") if item.strip()]
+
+
+def env_int(name, default):
+    try:
+        return int(str(os.getenv(name, default)).strip())
+    except (TypeError, ValueError):
+        return int(default)
+
+
+def env_token(name, default=""):
+    raw_value = str(os.getenv(name, default) or "").strip()
+    raw_value = raw_value.strip("'").strip('"').strip()
+    if raw_value == "":
+        return ""
+    return raw_value.split()[0]
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-rf#d5g+!nj_-(r$igirt&$5_h!zd9b=a@%iy-i#xd4*=*bz4^3'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-this-secret-key-4c5a6f8e-0b1c-2d3e-4f5a-6b7c8d9e0f1a")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool("DJANGO_DEBUG", True)
 
-ALLOWED_HOSTS = []
+default_hosts = "127.0.0.1,localhost,testserver" if DEBUG else ""
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", default_hosts)
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 
 # Application definition
@@ -44,7 +93,6 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'dr_scaffold',
     'rest_framework',
 
@@ -56,9 +104,13 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if HAS_WHITENOISE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'conf.urls'  
 
@@ -91,6 +143,18 @@ DATABASES = {
     }
 }
 
+DATABASE_URL = str(os.getenv("DATABASE_URL", "")).strip()
+if DATABASE_URL != "":
+    if dj_database_url is None:
+        raise ImproperlyConfigured(
+            "DATABASE_URL foi definido, mas dj-database-url nao esta instalado."
+        )
+    DATABASES['default'] = dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=env_int("DJANGO_DB_CONN_MAX_AGE", 600),
+        ssl_require=env_bool("DJANGO_DB_SSL_REQUIRE", not DEBUG),
+    )
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -101,12 +165,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 12},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'nutri.password_validators.StrongPasswordValidator',
     },
 ]
 
@@ -116,7 +184,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
@@ -126,34 +194,133 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS=[
-    os.path.join(BASE_DIR,'templates/static')
-    ]
-MEDIA_URL='media/'
-MEDIA_ROOT= (os.path.join(BASE_DIR,'media/'))
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'templates/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-print ("base dir path", BASE_DIR)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+if DEBUG:
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+else:
+    static_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    if HAS_WHITENOISE:
+        static_backend = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": static_backend},
+    }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
 ]
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-SITE_ID = 4
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+SITE_ID = env_int("DJANGO_SITE_ID", 1)
 LOGIN_REDIRECT_URL = 'home'
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+
+# API externa (TACO): configuravel por ambiente.
+default_taco_base_url = "http://127.0.0.1:7000" if DEBUG else ""
+TACO_API_BASE_URL = str(os.getenv("TACO_API_BASE_URL", default_taco_base_url)).strip().rstrip("/")
+TACO_API_TIMEOUT = int(os.getenv("TACO_API_TIMEOUT", "8"))
+TACO_API_WRITE_TIMEOUT = int(os.getenv("TACO_API_WRITE_TIMEOUT", "10"))
+TACO_API_TOKEN = env_token("TACO_API_TOKEN", "")
+TACO_SEARCH_CACHE_SECONDS = env_int("TACO_SEARCH_CACHE_SECONDS", 60)
+LOGIN_MAX_ATTEMPTS = env_int("LOGIN_MAX_ATTEMPTS", 5)
+LOGIN_BLOCK_SECONDS = env_int("LOGIN_BLOCK_SECONDS", 300)
+
+if not DEBUG and SECRET_KEY.startswith("dev-only-change-this-secret-key"):
+    raise ImproperlyConfigured("Defina DJANGO_SECRET_KEY em producao.")
+
+if not DEBUG and len(ALLOWED_HOSTS) == 0:
+    raise ImproperlyConfigured("Defina DJANGO_ALLOWED_HOSTS em producao.")
+
+if not DEBUG and len(CSRF_TRUSTED_ORIGINS) == 0:
+    raise ImproperlyConfigured("Defina DJANGO_CSRF_TRUSTED_ORIGINS em producao.")
+
+if not DEBUG and DATABASE_URL == "":
+    raise ImproperlyConfigured("Defina DATABASE_URL em producao.")
+
+if not DEBUG and TACO_API_BASE_URL == "":
+    raise ImproperlyConfigured("Defina TACO_API_BASE_URL em producao.")
+
+if not DEBUG:
+    parsed_taco_url = urlparse(TACO_API_BASE_URL)
+    taco_host = str(parsed_taco_url.hostname or "").lower()
+    if parsed_taco_url.scheme not in {"http", "https"} or taco_host == "":
+        raise ImproperlyConfigured("TACO_API_BASE_URL invalida para producao.")
+    if taco_host in {"127.0.0.1", "localhost", "0.0.0.0"}:
+        raise ImproperlyConfigured("TACO_API_BASE_URL nao pode apontar para localhost em producao.")
+
+REDIS_URL = str(os.getenv("REDIS_URL", "")).strip()
+CACHE_KEY_PREFIX = str(os.getenv("CACHE_KEY_PREFIX", "nutrients")).strip() or "nutrients"
+CACHE_TIMEOUT_SECONDS = env_int("CACHE_TIMEOUT_SECONDS", 300)
+CACHE_SOCKET_TIMEOUT_SECONDS = env_int("CACHE_SOCKET_TIMEOUT_SECONDS", 5)
+CACHE_SOCKET_CONNECT_TIMEOUT_SECONDS = env_int("CACHE_SOCKET_CONNECT_TIMEOUT_SECONDS", 5)
+
+if REDIS_URL != "":
+    if not HAS_DJANGO_REDIS:
+        raise ImproperlyConfigured(
+            "REDIS_URL foi definido, mas django-redis nao esta instalado."
+        )
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "TIMEOUT": CACHE_TIMEOUT_SECONDS,
+            "KEY_PREFIX": CACHE_KEY_PREFIX,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "SOCKET_TIMEOUT": CACHE_SOCKET_TIMEOUT_SECONDS,
+                "SOCKET_CONNECT_TIMEOUT": CACHE_SOCKET_CONNECT_TIMEOUT_SECONDS,
+                "IGNORE_EXCEPTIONS": False,
+            },
         }
     }
+elif DEBUG:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "nutrients-local-cache",
+            "TIMEOUT": CACHE_TIMEOUT_SECONDS,
+            "KEY_PREFIX": CACHE_KEY_PREFIX,
+        }
+    }
+else:
+    raise ImproperlyConfigured(
+        "Defina REDIS_URL em producao para cache/throttle multi-instancia."
+    )
+
+REST_FRAMEWORK = {
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": os.getenv("DRF_THROTTLE_ANON", "60/min"),
+        "user": os.getenv("DRF_THROTTLE_USER", "300/min"),
+    },
 }
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "DENY"
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = env_int("DJANGO_SECURE_HSTS_SECONDS", 31536000)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

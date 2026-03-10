@@ -1,486 +1,380 @@
 .container_main {
   width: 100%;
-  height: 100vh;
-  padding-bottom: 200px;
+  padding-bottom: 34px;
 }
+
 .containar_welcome {
+  position: relative;
+  isolation: isolate;
+  margin: 22px auto 0;
+  width: min(1520px, 95vw);
+  min-height: 370px;
   display: flex;
-  margin-top: 35px;
-  justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 400px;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18px;
   background-image: url("https://img.freepik.com/fotos-gratis/fitness-comida-saudavel-alimentos-fontes-de-omega-3-na-vista-superior-do-fundo-escuro-alimentos-ricos-em-acidos-graxos-incluindo-vegetais-frutos-do-mar-nozes-e-sementes_118925-1411.jpg?w=2000");
   background-repeat: no-repeat;
-  background-size: 100%;
-  box-shadow: #0e274d 5px 5px 15px 10px;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 14px 28px rgba(11, 29, 58, 0.28);
 }
+
+.containar_welcome::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(8, 23, 47, 0.72) 0%, rgba(15, 47, 86, 0.54) 100%);
+  z-index: 0;
+}
+
 .div_message_wel {
+  position: relative;
+  z-index: 1;
+  width: min(1000px, 90%);
+  padding: 22px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(7, 24, 49, 0.46);
   text-align: center;
-  width: 100%;
-  height: 150px;
-  background: rgba(0, 0, 0, 0.27);
 }
-.div_message_wel > label {
-  width: 100%;
-  height: 100%;
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 128px;
-  line-height: 155px;
-  text-align: center;
+
+.div_message_wel h1 {
+  margin: 0;
   color: #ffffff;
+  font-size: clamp(2rem, 5vw, 3.7rem);
+  line-height: 1.08;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-weight: 600;
 }
-.div_introduçao {
-  padding-top: 40px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  margin-top: 10px;
-  width: 100%;
+
+.div_message_wel p {
+  margin: 12px auto 0;
+  max-width: 880px;
+  color: #ebf4ff;
+  font-size: 1.02rem;
+  line-height: 1.48;
 }
-.conteudo_alimentar,
-.conteudo_sobre_site {
+
+.hero_badges {
+  margin-top: 14px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero_badges span {
+  display: inline-flex;
   align-items: center;
-  width: 35%;
-  height: 500px;
-  background: #0e274d;
-  border-radius: 10px;
-  padding: 15px;
-}
-.conteudo_sobre_site > .nosso_link > label {
-  display: flex;
-  width: 430px;
-  justify-content: space-around;
-  margin-top: 5px;
-  padding: 5px;
-}
-.conteudo_sobre_site > .nosso_link > label > a {
-  color: black;
-  font-size: 16px;
-  background-color: #c4c4c4;
-  padding: 5px;
-  text-decoration: none;
-  font-weight: bold;
-}
-.conteudo_alimentar > a {
-  text-decoration: none;
-  gap: 10px;
-  padding: 5px;
-  margin-top: 15px;
-  background-color: #c4c4c4;
-  display: flex;
-  height: 25px;
-  border-radius: 5px;
-  color: #0e274d;
-  font-size: 16px;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 0.82rem;
   font-weight: 700;
 }
-.text_alimentar {
+
+.hero_badges i {
+  color: #ffad4e;
+}
+
+.hero_actions {
+  margin-top: 16px;
   display: flex;
   justify-content: center;
-  text-align: center;
-  width: 80%;
-  height: 80%;
-  background: rgba(253, 253, 253, 0.3);
-  border-radius: 5px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
+
+.hero_btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.hero_btn_primary {
+  background: linear-gradient(120deg, #ff9d36, #f47d00);
+  color: #ffffff;
+}
+
+.hero_btn_primary:hover {
+  filter: brightness(1.06);
+}
+
+.hero_btn_secondary {
+  background: linear-gradient(120deg, #2d66b5, #1f4f92);
+  border: 1px solid #92b7eb;
+  color: #ffffff;
+}
+
+.hero_btn_secondary:hover {
+  filter: brightness(1.08);
+}
+
+.div_introducao {
+  width: min(1460px, 92vw);
+  margin: 22px auto 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.conteudo_alimentar,
+.conteudo_sobre_site {
+  display: grid;
+  gap: 12px;
+  background: linear-gradient(155deg, #123161 0%, #1a3f75 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 14px;
+  box-shadow: 0 12px 22px rgba(11, 29, 56, 0.26);
+}
+
+.text_alimentar,
 .text_sobre_site {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 18px;
+}
+
+.text_alimentar h3,
+.text_sobre_site h2 {
+  margin: 0;
   display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #ffffff;
+  font-size: clamp(1.45rem, 2.1vw, 2rem);
+  line-height: 1.2;
+}
+
+.text_alimentar h3 i,
+.text_sobre_site h2 i {
+  color: #ffad4e;
+  font-size: 0.86em;
+}
+
+.text_alimentar p,
+.text_sobre_site p {
+  margin: 12px 0 0;
+  color: #eff5ff;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+.text_alimentar ul {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.text_alimentar li {
+  position: relative;
+  padding-left: 21px;
+  color: #eff5ff;
+  font-size: 0.98rem;
+  line-height: 1.42;
+}
+
+.text_alimentar li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffad4e;
+}
+
+.home_action {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(120deg, #ff9d36, #f47d00);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.home_action:hover {
+  filter: brightness(1.06);
+}
+
+.quick_actions {
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.quick_actions h4 {
+  margin: 0 0 10px;
+  color: #f7fbff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.nosso_link {
+  display: grid;
+  gap: 8px;
+}
+
+.nosso_link a {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  text-align: center;
-  width: 80%;
-  height: 80%;
-  background: rgba(253, 253, 253, 0.3);
-  border-radius: 5px;
+  gap: 7px;
+  min-height: 40px;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  background: #2a5fa8;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  transition: transform 0.14s ease, filter 0.14s ease;
+  color: #ffffff;
 }
-.text_alimentar > label {
-  width: 80%;
-  text-align: justify;
-  color: white;
-  padding-top: 10px;
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 20px;
+
+.nosso_link a:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
 }
-.text_sobre_site > label {
-  width: 80%;
-  text-align: justify;
-  color: white;
-  padding-top: 10px;
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 19px;
+
+.nosso_link a:visited,
+.home_action:visited,
+.hero_btn:visited {
+  color: #ffffff;
 }
-.text_sobre_site > label > p > a {
-  font-weight: bolder;
-  color: black;
+
+.quick-btn i,
+.nosso_link a i,
+.hero_btn i,
+.home_action i {
+  color: #ffffff;
 }
-@media (max-width: 1450px) {
-  .conteudo_sobre_site > .nosso_link > label {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: space-around;
-    margin-top: 5px;
-    padding: 5px;
-    gap: 8px;
+
+.quick-btn {
+  border-width: 1px;
+  border-style: solid;
+}
+
+.quick-btn-blue {
+  border-color: #8fb2e8;
+  background: linear-gradient(120deg, #2c64b3, #1d4d93);
+  color: #ffffff;
+}
+
+.quick-btn-blue:hover {
+  background: linear-gradient(120deg, #3570c4, #245ba9);
+}
+
+.quick-btn-orange {
+  border-color: #ffc488;
+  background: linear-gradient(120deg, #ff9d36, #f57d00);
+  color: #ffffff;
+}
+
+.quick-btn-orange:hover {
+  background: linear-gradient(120deg, #ffab4f, #ff8d1a);
+}
+
+@media (max-width: 1100px) {
+  .div_message_wel p,
+  .text_alimentar p,
+  .text_sobre_site p {
+    font-size: 0.94rem;
   }
-  .conteudo_sobre_site > .nosso_link > label > a {
-    color: black;
-    width: 100%;
-    font-size: 16px;
-    background-color: #c4c4c4;
-    padding: 5px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .text_alimentar > label {
-    width: 80%;
-    text-align: justify;
-    color: white;
-    padding-top: 10px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 18px;
-  }
-  .text_sobre_site > label {
-    width: 80%;
-    text-align: justify;
-    color: white;
-    padding-top: 10px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 200;
-    font-size: 16px;
+
+  .text_alimentar li {
+    font-size: 0.9rem;
   }
 }
-@media (max-width: 1050px) {
-  .text_alimentar > label {
-    width: 80%;
-    text-align: justify;
-    color: white;
-    padding-top: 10px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-  }
-  .text_sobre_site > label {
-    width: 80%;
-    text-align: justify;
-    color: white;
-    padding-top: 10px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 200;
-    font-size: 15px;
-  }
-}
-@media (max-width: 880px) {
-  .text_alimentar > label {
-    width: 90%;
-    text-align: justify;
-    color: white;
-    padding-top: 4px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 15px;
-  }
-  .text_sobre_site > label {
-    width: 90%;
-    text-align: justify;
-    color: white;
-    padding-top: 4px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 300;
-    font-size: 14px;
-  }
-  .conteudo_sobre_site > .nosso_link > label {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: space-around;
-    margin-top: 5px;
-    padding: 5px;
-    gap: 8px;
-  }
-  .conteudo_sobre_site > .nosso_link > label > a {
-    color: black;
-    font-size: 16px;
-    background-color: #c4c4c4;
-    padding: 5px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-}
-@media (max-width: 720px) {
+
+@media (max-width: 920px) {
   .containar_welcome {
-    display: flex;
-    margin-top: 35px;
-    justify-content: center;
-    align-items: center;
-    width: 98vw;
-    height: 200px;
-    background-image: url("https://img.freepik.com/fotos-gratis/fitness-comida-saudavel-alimentos-fontes-de-omega-3-na-vista-superior-do-fundo-escuro-alimentos-ricos-em-acidos-graxos-incluindo-vegetais-frutos-do-mar-nozes-e-sementes_118925-1411.jpg?w=2000");
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    box-shadow: #0e274d 5px 5px 15px 10px;
+    min-height: 320px;
   }
-  .div_message_wel {
-    text-align: center;
-    width: 100%;
-    height: 150px;
-    background: rgba(0, 0, 0, 0.27);
-  }
-  .div_message_wel > label {
-    width: 100%;
-    height: 100%;
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 28px;
-    line-height: 155px;
-    text-align: center;
-    color: #ffffff;
-  }
-  .text_alimentar > label {
-    width: 90%;
-    text-align: justify;
-    color: white;
-    padding-top: 8px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 300;
-    font-size: 13px;
-  }
-  .text_sobre_site > label {
-    width: 90%;
-    text-align: justify;
-    color: white;
-    padding-top: 8px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 300;
-    font-size: 12px;
-  }
-  .conteudo_sobre_site > .nosso_link > label {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: space-around;
-    margin-top: 5px;
-    padding: 5px;
-    gap: 8px;
-  }
-  .conteudo_sobre_site > .nosso_link > label > a {
-    color: black;
-    font-size: 16px;
-    background-color: #c4c4c4;
-    padding: 5px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .conteudo_alimentar > a {
-    text-decoration: none;
-    gap: 10px;
-    padding: 5px;
-    margin-top: 15px;
-    background-color: #c4c4c4;
-    display: flex;
-    width: 75%;
-    height: 45px;
-    border-radius: 5px;
-    color: #0e274d;
-    font-size: 16px;
-    font-weight: 700;
+
+  .div_introducao {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
-@media (max-width: 590px) {
+
+@media (max-width: 620px) {
   .containar_welcome {
-    display: flex;
-    margin-top: 35px;
-    justify-content: center;
-    align-items: center;
-    width: 98vw;
-    height: 200px;
-    background-image: url("https://img.freepik.com/fotos-gratis/fitness-comida-saudavel-alimentos-fontes-de-omega-3-na-vista-superior-do-fundo-escuro-alimentos-ricos-em-acidos-graxos-incluindo-vegetais-frutos-do-mar-nozes-e-sementes_118925-1411.jpg?w=2000");
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    box-shadow: #0e274d 5px 5px 15px 10px;
+    width: 95vw;
+    min-height: 280px;
+    border-radius: 12px;
   }
+
   .div_message_wel {
-    text-align: center;
-    width: 100%;
-    height: 150px;
-    background: rgba(0, 0, 0, 0.27);
+    width: 92%;
+    padding: 16px 12px;
+    border-radius: 10px;
   }
-  .div_message_wel > label {
-    width: 100%;
-    height: 100%;
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 28px;
-    line-height: 155px;
-    text-align: center;
-    color: #ffffff;
+
+  .div_message_wel p {
+    font-size: 0.88rem;
   }
-  .div_introduçao {
-    padding-top: 40px;
-    display: flex;
+
+  .hero_badges span {
+    font-size: 0.76rem;
+  }
+
+  .hero_actions {
     flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 10px;
-    width: 100%;
-    gap: 20px;
   }
+
+  .hero_btn {
+    width: 100%;
+  }
+
+  .div_introducao {
+    width: 94vw;
+  }
+
   .conteudo_alimentar,
   .conteudo_sobre_site {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 65%;
-    height: 500px;
-    background: #0e274d;
-    border-radius: 10px;
-    padding: 15px;
+    padding: 12px;
+    border-radius: 11px;
   }
-  .text_alimentar > label {
-    width: 95%;
-    text-align: justify;
-    color: white;
-    padding-top: 4px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
+
+  .text_alimentar,
+  .text_sobre_site,
+  .quick_actions {
+    padding: 12px;
   }
-  .text_sobre_site > label {
-    width: 95%;
-    text-align: justify;
-    color: white;
-    padding-top: 4px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
+
+  .text_alimentar p,
+  .text_sobre_site p,
+  .text_alimentar li {
+    font-size: 0.86rem;
   }
-  .conteudo_sobre_site > .nosso_link > label {
-    display: flex;
-    flex-direction: column;
+
+  .home_action,
+  .nosso_link a {
     width: 100%;
-    justify-content: space-around;
-    margin-top: 5px;
-    padding: 5px;
-    gap: 8px;
-  }
-  .conteudo_sobre_site > .nosso_link > label > a {
-    color: black;
-    font-size: 16px;
-    background-color: #c4c4c4;
-    padding: 5px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .conteudo_alimentar > a {
-    text-decoration: none;
-    gap: 10px;
-    padding: 5px;
-    margin-top: 15px;
-    background-color: #c4c4c4;
-    display: flex;
-    width: 75%;
-    height: 35px;
-    border-radius: 5px;
-    color: #0e274d;
-    font-size: 16px;
-    font-weight: 700;
-  }
-}
-@media (max-width: 370px) {
-  .div_introduçao {
-    padding-top: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 10px;
-    width: 100%;
-    gap: 20px;
-  }
-  .conteudo_alimentar,
-  .conteudo_sobre_site {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 65%;
-    height: 500px;
-    background: #0e274d;
-    border-radius: 10px;
-    padding: 15px;
-  }
-  .text_alimentar > label {
-    width: 95%;
-    text-align: justify;
-    color: white;
-    padding-top: 4px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 300;
-    font-size: 13px;
-  }
-  .text_sobre_site > label {
-    width: 95%;
-    text-align: justify;
-    color: white;
-    padding-top: 4px;
-    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-    font-style: normal;
-    font-weight: 300;
-    font-size: 12px;
-  }
-  .conteudo_sobre_site > .nosso_link > label {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: space-around;
-    margin-top: 5px;
-    padding: 5px;
-    gap: 8px;
-  }
-  .conteudo_sobre_site > .nosso_link > label > a {
-    color: black;
-    font-size: 16px;
-    background-color: #c4c4c4;
-    padding: 5px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .conteudo_alimentar > a {
-    text-decoration: none;
-    gap: 10px;
-    padding: 5px;
-    margin-top: 15px;
-    background-color: #c4c4c4;
-    display: flex;
-    width: 75%;
-    height: 35px;
-    border-radius: 5px;
-    color: #0e274d;
-    font-size: 16px;
-    font-weight: 700;
   }
 }

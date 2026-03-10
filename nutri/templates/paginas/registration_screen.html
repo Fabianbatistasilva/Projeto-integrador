@@ -1,44 +1,38 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
-    <link rel="stylesheet" href="{% static 'css/cadastro.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link href="{% static 'fontawesomefree/css/all.min.css' %}" rel="stylesheet" type="text/css">
-</head>
-<body>
-    <header>
-        <nav>
-            <div class="select_home">
-                <a href="{%url 'home'%}">
-                    <img src="{% static 'img\logo_jovem_programador.png' %}" alt="">
-                </a>
-            </div>
-        </nav>
-    </header>
-<div class="container_cadastro">
-{%if messages%}
-{%for message in messages%}
-<div class="erro">
-    <div class="messagem_de_erro"><label for="">{{message}}</label></div>
+{% block 'title' %}Cadastro{% endblock %}
+{% block 'extra_css' %}
+  <link rel="stylesheet" href="{% static 'css/cadastro.css' %}" />
+{% endblock %}
+{% block 'sections' %}
+<div class="container_cadastro auth-register-page">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="erro">
+        <div class="messagem_de_erro"><label>{{ message }}</label></div>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <section class="cadastro-card">
+    <h1>Criar conta</h1>
+    <p>Preencha os dados abaixo para iniciar.</p>
+
+    <form class="form_cadastro" action="" method="POST">
+      {% csrf_token %}
+      <label for="cad-username">Usuario</label>
+      <input id="cad-username" placeholder="Escolha um usuario" class="user_cadastro" type="text" name="username" required>
+
+      <label for="cad-password">Senha</label>
+      <input id="cad-password" placeholder="Crie sua senha" class="senha_cadastro" type="password" name="password" required>
+
+      <label for="cad-confirm">Confirmar senha</label>
+      <input id="cad-confirm" placeholder="Repita sua senha" class="senha_cadastro_conf" type="password" name="conf_password" required>
+
+      <button class="efetuar_cadastro" type="submit">Criar cadastro</button>
+    </form>
+
+    <a class="ir_login" href="{% url 'login_site' %}">Voltar ao login</a>
+  </section>
 </div>
-{%endfor%}
-{%endif%} 
-    <div class="cadastro">
-        <form class="form_cadastro" action="" method="POST">{% csrf_token %}
-            <label  class="text_cadastro" for="">CADASTRO</label> 
-            <input placeholder="Usuario" class="user_cadastro" type="text" name="username" id="">
-            <input placeholder="Senha" class="senha_cadastro" type="password" name="password" id="">
-            <input placeholder="Conf. Senha" class="senha_cadastro_conf" type="password" name="conf_password" id="">
-            <input placeholder="@email.com" class="email_cadastro" type="email" name="email" id="">
-            <button class="efetuar_cadastro" type="submit">Criar</button>
-            <a class="ir_login" href="{% url 'login_site' %}">Voltar ao Login</a>
-        </form>
-    </div>
-</div>  
-</body>
-</html>
+{% endblock %}

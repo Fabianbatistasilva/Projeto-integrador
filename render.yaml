@@ -1,0 +1,47 @@
+services:
+  - type: redis
+    name: nutrients-redis
+    plan: free
+    ipAllowList: []
+
+  - type: web
+    name: nutrients-web
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate --noinput
+    startCommand: gunicorn conf.wsgi:application --log-file -
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "nutrients-web.onrender.com"
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: "https://nutrients-web.onrender.com"
+      - key: DJANGO_SECURE_SSL_REDIRECT
+        value: "true"
+      - key: DJANGO_DB_SSL_REQUIRE
+        value: "true"
+      - key: TACO_API_TIMEOUT
+        value: "8"
+      - key: TACO_API_WRITE_TIMEOUT
+        value: "10"
+      - key: DJANGO_DB_CONN_MAX_AGE
+        value: "600"
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: nutrients-redis
+          property: connectionString
+      - key: CACHE_KEY_PREFIX
+        value: "nutrients"
+      - key: CACHE_TIMEOUT_SECONDS
+        value: "300"
+      - key: CACHE_SOCKET_TIMEOUT_SECONDS
+        value: "5"
+      - key: CACHE_SOCKET_CONNECT_TIMEOUT_SECONDS
+        value: "5"

@@ -1,21 +1,27 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from nutri.models import User,Dieta,ImprimirDieta
+from nutri.models import Dieta, ImprimirDieta
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model =  User  
-        exclude = ()
-        
+        model = User
+        fields = ("id", "username", "email", "is_active", "is_staff", "date_joined")
+        read_only_fields = fields
+
+
 class DietaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dieta
-        exclude =  ()
+        fields = "__all__"
+        read_only_fields = ("usuario",)
+
 
 class ImprimirDietaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImprimirDieta
-        exclude =  ()
+        fields = "__all__"
+        read_only_fields = ("usuario",)
 
 

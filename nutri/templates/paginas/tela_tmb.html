@@ -1,62 +1,78 @@
-{% extends 'base.html' %} {%block 'title'%}Tmb{%endblock%} {%block 'sections'%}
-<!-- Adicionar valor TMB em flax (css) -->
+{% extends 'base.html' %}
+{% load static %}
+{% block 'title' %}TMB{% endblock %}
+{% block 'extra_css' %}
+  <link rel="stylesheet" href="{% static 'css/tmb.css' %}" />
+{% endblock %}
+{% block 'sections' %}
 <div class="tela_tmb">
-{%if messages%}
-{%for message in messages%}
-<script>alert('{{message}}')</script>
-{%endfor%}
-{%endif%}     
-    <form method="post">{% csrf_token %}
-        
-        <div class="valor_tmb">
-            <h2>Valor de injestao diária</h2>
-            <label for="">Seu gasto parado é de <strong id="gasto_parado_javascript"></strong> Kcal  e seu gasto diario médio <strong id="gasto_dia_js"></strong> Kcal</label>
-            <label for="">
-                Com base no seu objetivo <strong id="objetivo_javascript"></strong>
-                você deve ingerir <strong id="valor_total_de_calorias_javascript"></strong> Kcal
-            </label>
-            {%if verUser%}
-            <button  id='btn_tmb' type="submit" class="btn_tmb1" >Atualizar</button>
-            {%else%}
-            <button  class="btn_tmb1" type="submit">Criar Dieta</button>
-            {%endif%}
-        </div>
-        <div class="objetivo">
-            <p>Objetivo:</p>
-            <select name="objetivo_user"  id='objetivo_user'>
-                {% for c in objetivo %}
-                    <option value="{{c.id}}">{{c}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="nivel_ati">
-            <p>Atividade:</p>
-            <select name="nivel_de_ati_user" id='nivel_de_ati_user'>
-                {% for c in nivel_at %}
-                    <option  value="{{c.id}}">{{c}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="peso">
-            <p> Peso: </p>
-            <input id="peso_user" type="number" min="0" placeholder="Nun. Int." name="peso">
-        </div>
-        <div class="altura">
-            <p>Altura: </p>
-            <input id="height_user" type="number" min="0" placeholder="cm" name="height">
-        </div>
-        <div class="idade">
-            <p>Idade: </p>
-            <input id="age_user" type="number" min="0" placeholder="anos" name="age">
-        </div>
-        <div class="sexo">
-            <p>Sexo: </p> 
-            <p><input id="user_masculino" checked type="radio" name="opcao" value="masculino"> Masculino</p>
-            <p><input id="user_feminino" type="radio" name="opcao" value="feminino"> Feminino</p>
-        </div>
-        
-        <input value="Gerar Taxa Metabólica Basal" id='btn_tmb' onclick="botao_gerar()" class="btn_tmb" >
-        <input id="local_dados_do_user" type="hidden" name="local_dados_do_user" multiple>
-    </form>
+  {% if messages %}
+    {% for message in messages %}
+      <script>alert('{{ message }}')</script>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" class="tmb-form" id="tmb-form">
+    {% csrf_token %}
+
+    <div class="valor_tmb">
+      <h2>Resumo da ingestao diaria</h2>
+      <p>Seu gasto em repouso e de <strong id="gasto_parado_javascript"></strong> kcal e o gasto diario medio e de <strong id="gasto_dia_js"></strong> kcal.</p>
+      <p>Com o objetivo <strong id="objetivo_javascript"></strong>, a meta diaria e <strong id="valor_total_de_calorias_javascript"></strong> kcal.</p>
+
+      {% if verUser %}
+        <button type="submit" class="btn_tmb1" id="btn_salvar_dieta" disabled>Atualizar dieta</button>
+      {% else %}
+        <button type="submit" class="btn_tmb1" id="btn_salvar_dieta" disabled>Criar dieta</button>
+      {% endif %}
+    </div>
+
+    <div class="tmb-grid">
+      <div class="field-card">
+        <label for="objetivo_user">Objetivo</label>
+        <select name="objetivo_user" id="objetivo_user">
+          {% for c in objetivo %}
+            <option value="{{ c.id }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field-card">
+        <label for="nivel_de_ati_user">Atividade</label>
+        <select name="nivel_de_ati_user" id="nivel_de_ati_user">
+          {% for c in nivel_at %}
+            <option value="{{ c.id }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field-card">
+        <label for="peso_user">Peso (kg)</label>
+        <input id="peso_user" type="number" min="0" step="1" inputmode="numeric" placeholder="Ex: 82" name="peso">
+      </div>
+
+      <div class="field-card">
+        <label for="height_user">Altura (cm)</label>
+        <input id="height_user" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Ex: 169 (sem virgula)" name="height">
+      </div>
+
+      <div class="field-card">
+        <label for="age_user">Idade (anos)</label>
+        <input id="age_user" type="number" min="0" step="1" inputmode="numeric" placeholder="Ex: 28" name="age">
+      </div>
+
+      <div class="field-card sexo">
+        <span>Sexo</span>
+        <label class="radio-option"><input id="user_masculino" checked type="radio" name="opcao" value="Masculino"> Masculino</label>
+        <label class="radio-option"><input id="user_feminino" type="radio" name="opcao" value="Feminino"> Feminino</label>
+      </div>
+    </div>
+
+    <button type="button" id="btn_tmb" onclick="botao_gerar()" class="btn_tmb">Gerar taxa metabolica basal</button>
+    <input id="local_dados_do_user" type="hidden" name="local_dados_do_user">
+  </form>
 </div>
-{%endblock%}
+{% endblock %}
+{% block 'extra_js' %}
+  <script src="{% static 'js/tmb.js' %}" defer></script>
+{% endblock %}

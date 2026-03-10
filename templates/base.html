@@ -1,78 +1,56 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 {% load static %}
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{%block 'title'%}{%endblock%}</title>
-     <link rel="icon" type="image/x-icon" href="{% static 'img\logo_jovem_programador.png' %}">
+    <title>{% block 'title' %}{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo_jovem_programador.png' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/google.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/cadastro.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/criar_dieta.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/home.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/introducao.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/login.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/tmb.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/diet_screen.css' %}" />
-    <link
-      href="{% static 'fontawesomefree/css/all.min.css' %}"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <script src="{% static 'js/criar_dieta.js' %}"></script>
-    <script src="{% static 'js/tmb.js' %}"></script>
+    <link href="{% static 'fontawesomefree/css/all.min.css' %}" rel="stylesheet" type="text/css" />
+    {% block 'extra_css' %}{% endblock %}
   </head>
-  <body>
-    <header>
-      <nav>
+  <body class="{% block 'body_class' %}{% endblock %}">
+    <header class="site-header">
+      <nav class="site-nav">
         <div class="select_home">
-          <a href="{%url 'home'%}">
-            <img src="{% static 'img\logo_jovem_programador.png' %}" alt="" />
+          <a href="{% url 'home' %}">
+            <img src="{% static 'img/logo_jovem_programador.png' %}" alt="Logo Jovem Programador" />
           </a>
         </div>
-        <div class="select_opçoes">
+
+        <div class="select_opcoes">
           <div class="user">
             <details>
-              <summary>Opções</summary>
-              {%if user.is_authenticated%}
-              <a href="{%url 'login_site'%}"
-                ><i class="fa-solid fa-user-gear"></i>Login</a>
-              {%else%}
-              <a href="{%url 'login_site'%}"
-                ><i class="fa-solid fa-user-large"></i>Login</a>
-              {%endif%}
-              <a href="{%url 'logout'%}"><i class="fa-solid fa-arrow-right-from-bracket"></i>
-                Logout
-              </a>
-              {% if request.path != "/diet_screen/"%}
-              <a href="{%url 'diet_screen'%}">
-                <i  class="fa-solid fa-bowl-food"></i>
-                Rever dieta
-              </a>
-              {%endif%}
-              {% if request.path != "/criando_sua_dieta/"%}
-              <a class='nav_criar_dieta' href="{%url 'criar_dieta'%}">
-                <i class="fa-solid fa-receipt"></i>
-                Criar Refeições
-              </a>
-              {%endif%}
+              <summary>
+                <i class="fa-solid fa-bars"></i>
+                <span class="summary-default-label">Opcoes</span>
+                <span class="summary-mobile-label">Menu</span>
+              </summary>
+              <div class="menu_items">
+                <a href="{% url 'tela_tmb' %}" class="menu-mobile-only"><i class="fa-solid fa-person-circle-plus"></i>Criar Dieta</a>
+                {% if user.is_authenticated %}
+                  <a href="{% url 'criar_dieta' %}"><i class="fa-solid fa-receipt"></i>Criar Refeicoes</a>
+                  <a href="{% url 'diet_screen' %}"><i class="fa-solid fa-bowl-food"></i>Rever dieta</a>
+                  <a href="{% url 'logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+                {% else %}
+                  <a href="{% url 'login_site' %}"><i class="fa-solid fa-user-large"></i>Login</a>
+                  <a href="{% url 'registration_screen' %}"><i class="fa-solid fa-user-plus"></i>Cadastro</a>
+                {% endif %}
+              </div>
             </details>
           </div>
+
           <div class="criar_diet">
-            {% if request.path == "/introduçâo/" %}
-            <a href="{%url 'tela_tmb'%}"
-              ><i class="fa-solid fa-person-circle-plus"></i>Criar Dieta</a
-            >
-            {%else%}
-            <a href="{%url 'introdução'%}"
-              ><i class="fa-solid fa-person-circle-plus"></i>Objetivo</a
-            >{%endif%}
+            <a href="{% url 'tela_tmb' %}"><i class="fa-solid fa-person-circle-plus"></i>Criar Dieta</a>
           </div>
         </div>
       </nav>
     </header>
-    <div>{%block 'sections'%} {%endblock%}</div>
+
+    <main>{% block 'sections' %}{% endblock %}</main>
+    {% block 'extra_js' %}{% endblock %}
   </body>
 </html>
+

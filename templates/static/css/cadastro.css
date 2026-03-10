@@ -1,66 +1,114 @@
-.container_cadastro{
-    width: 100%;
-    height: 100vh;
-    background-image:url("https://www.saudeemdia.com.br/media/_versions/dieta_anti-inflamatoria_1_widexl.jpg");
+.container_cadastro {
+  min-height: calc(100vh - 120px);
+  padding: 24px 12px 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("https://www.saudeemdia.com.br/media/_versions/dieta_anti-inflamatoria_1_widexl.jpg");
+  background-size: cover;
+  background-position: center;
+  position: relative;
 }
-.cadastro{
-    width: 100%;
-    height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+.container_cadastro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 24, 48, 0.45) 0%, rgba(10, 24, 48, 0.62) 100%);
 }
-.form_cadastro{
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    width: 35%;
-    height: 500px;
-    background-color: #0e274dec;
-    gap: 30px;
-    border-radius: 10px;
+
+.cadastro-card {
+  position: relative;
+  z-index: 1;
+  width: min(460px, 94vw);
+  background: linear-gradient(155deg, rgba(15, 35, 68, 0.95) 0%, rgba(28, 58, 103, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.32);
+  padding: 22px;
+  display: grid;
+  gap: 12px;
 }
-.text_cadastro{
-    color: #FFFFFF;
-    width: 150px;
-    height: 30px;
-    font-size: 35px;
-    display: flex;
-    justify-content: center;
+
+.cadastro-card h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.65rem;
 }
-.user_cadastro,.senha_cadastro,.email_cadastro,.senha_cadastro_conf{
-    width: 200px;
-    text-align: center;
-    height: 22px;
-    font-weight: 600;
-    font-size: 19px;
-    border-radius: 10px;
-    padding: 5px;
+
+.cadastro-card p {
+  margin: 0;
+  color: #d8e6ff;
+  font-size: 0.95rem;
 }
-.efetuar_cadastro{
-    width: 150px;
-    height: 30px;
-    font-size: 18px;
-    border-radius: 5px;
+
+.form_cadastro {
+  display: grid;
+  gap: 10px;
 }
-.efetuar_cadastro:active{
-    background-color: green;
-    color: #FFFCFC;
+
+.form_cadastro label {
+  color: #e8f0ff;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
-.ir_login{
-    text-decoration: none;
-    font-size: 20px;
-    color: #FFFFFF;
+
+.user_cadastro,
+.senha_cadastro,
+.senha_cadastro_conf {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid #bfd0ef;
+  background: #ffffff;
+  color: #10213f;
+  font-size: 0.96rem;
+  padding: 10px 12px;
 }
-.ir_login:hover{
-    background-color: #C4C4C4;
-    border-radius: 10px;
-    border: #000000 1.5px solid;
-    padding: 10px;
-    color: #0E274D;
+
+.user_cadastro:focus,
+.senha_cadastro:focus,
+.senha_cadastro_conf:focus {
+  outline: 2px solid rgba(70, 122, 205, 0.45);
+  outline-offset: 0;
 }
-.ir_login:active{
-    background-color: green;
-    color: white;
+
+.efetuar_cadastro {
+  margin-top: 4px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(120deg, #1f7a45, #2f9d5a);
+  cursor: pointer;
+}
+
+.efetuar_cadastro:hover {
+  filter: brightness(1.08);
+}
+
+.ir_login {
+  color: #d6e7ff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.ir_login:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .container_cadastro {
+    padding: 16px 10px 24px;
+  }
+
+  .cadastro-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
 }

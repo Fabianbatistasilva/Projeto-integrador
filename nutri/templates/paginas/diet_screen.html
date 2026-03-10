@@ -1,177 +1,237 @@
-{% extends 'base.html'%} {% load static %}
-{% block 'title'%} Dieta {%endblock%} 
-{%block 'sections' %}
-<div class="diet">
-    <div class="value_diet">
-        <button class="button_print" onclick="window.print()">Imprimir Dieta</button>
-        <table>
+{% extends 'base.html' %}
+{% load static %}
+{% block 'title' %}Dieta{% endblock %}
+{% block 'extra_css' %}
+  <link rel="stylesheet" href="{% static 'css/diet_screen.css' %}?v=20260310-2" />
+{% endblock %}
+{% block 'sections' %}
+<div class="diet-screen-page">
+  <section class="diet-hero">
+    <div>
+      <h1>Cardapio do Dia</h1>
+      <p>Plano alimentar separado por refeicao, pronto para consulta e impressao.</p>
+    </div>
+    <button class="button_print" onclick="window.print()">Imprimir dieta</button>
+  </section>
+
+  <section class="macro-total-panel">
+    <div class="macro-total-card">
+      <span>Calorias totais</span>
+      <strong>{{ total_caloria }}</strong>
+    </div>
+    <div class="macro-total-card">
+      <span>Proteina total</span>
+      <strong>{{ total_proteina }}</strong>
+    </div>
+    <div class="macro-total-card">
+      <span>Carboidratos totais</span>
+      <strong>{{ total_carboidratos }}</strong>
+    </div>
+    <div class="macro-total-card">
+      <span>Gordura total</span>
+      <strong>{{ total_gordura }}</strong>
+    </div>
+  </section>
+
+  <section class="meal-list">
+    {% if meals %}
+      {% for meal in meals %}
+        <article class="meal-card">
+          <header><h2>{{ meal.numero }}a Refeicao</h2></header>
+          <table class="meal-table">
             <thead>
-                <tr >
-                    <th>Alimento</th>
-                    <th>Quantidade (g)</th>
-                    <th>Macros</th>
-                </tr>
+              <tr>
+                <th>Alimento</th>
+                <th>Quantidade</th>
+                <th>Macros</th>
+              </tr>
             </thead>
             <tbody>
-                <br>
-                <br>
-                {% for valor in dieta %}
-                <thead>
-                    <tr class="nun_ref">
-                        <th class="nun_ref">1º Refeição</th>
-                    </tr>
-                </thead>
+              {% for item in meal.itens %}
                 <tr>
-                    <td class="nome">{{ valor.ref_11 }}</td>
-                    <td class="quant">{{ valor.quant_11 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_11 }}</strong> Carb: <strong>{{ valor.carb_11 }}</strong> Gord: <strong>{{ valor.gord_11 }}</strong>  Kcal: <strong>{{ valor.kcal_11 }}</strong> </td>
+                  <td>{{ item.nome }}</td>
+                  <td class="qty-cell">{{ item.quantidade }} g</td>
+                  <td class="macros-cell">
+                    Prot <strong>{{ item.prot }}</strong> |
+                    Carb <strong>{{ item.carb }}</strong> |
+                    Gord <strong>{{ item.gord }}</strong> |
+                    Kcal <strong>{{ item.kcal }}</strong>
+                  </td>
                 </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_12 }}</td>
-                    <td class="quant">{{ valor.quant_12 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_12 }}</strong> Carb:<strong>{{ valor.carb_12 }}</strong> Gord: <strong>{{ valor.gord_12 }}</strong>  Kcal: <strong>{{ valor.kcal_12 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_13 }}</td>
-                    <td class="quant">{{ valor.quant_13 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_13 }}</strong> Carb:<strong>{{ valor.carb_13 }}</strong> Gord: <strong>{{ valor.gord_13 }}</strong>  Kcal: <strong>{{ valor.kcal_13 }}</strong> </td>
-                </tr>
-                <thead>
-                    <tr class="nun_ref">
-                        <th class="nun_ref">2º Refeição</th>
-                    </tr>
-                </thead>
-
-                <tr>
-                    <td class="nome">{{ valor.ref_21 }}</td>
-                    <td class="quant">{{ valor.quant_21 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_21 }}</strong> Carb:<strong>{{ valor.carb_21 }}</strong> Gord: <strong>{{ valor.gord_21 }}</strong>  Kcal: <strong>{{ valor.kcal_21 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_22 }}</td>
-                    <td class="quant">{{ valor.quant_22 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_22 }}</strong> Carb:<strong>{{ valor.carb_22 }}</strong> Gord: <strong>{{ valor.gord_22 }}</strong>  Kcal: <strong>{{ valor.kcal_22 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_23 }}</td>
-                    <td class="quant">{{ valor.quant_23 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_23 }}</strong> Carb:<strong>{{ valor.carb_23 }}</strong> Gord: <strong>{{ valor.gord_23 }}</strong>  Kcal: <strong>{{ valor.kcal_23 }}</strong> </td>
-                </tr>
-
-                {% if valor.ref_31 != '' %}
-                <thead>
-                    <tr class="nun_ref">
-                        <th class="nun_ref">3º Refeição</th>
-                    </tr>
-                </thead>
-                
-                <tr>
-                    <td class="nome">{{ valor.ref_31 }}</td>
-                    <td class="quant">{{ valor.quant_31 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_31 }}</strong> Carb:<strong>{{ valor.carb_31 }}</strong> Gord: <strong>{{ valor.gord_31 }}</strong>  Kcal: <strong>{{ valor.kcal_31 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_32 }}</td>
-                    <td class="quant">{{ valor.quant_32 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_32 }}</strong> Carb:<strong>{{ valor.carb_32 }}</strong> Gord: <strong>{{ valor.gord_32 }}</strong>  Kcal: <strong>{{ valor.kcal_32 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_33 }}</td>
-                    <td class="quant">{{ valor.quant_33 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_33 }}</strong> Carb:<strong>{{ valor.carb_33 }}</strong> Gord: <strong>{{ valor.gord_33 }}</strong>  Kcal: <strong>{{ valor.kcal_33 }}</strong> </td>
-                </tr>
-                {% endif %}
-                
-                {% if valor.ref_41 != '' %}
-                <thead>
-                    <tr class="nun_ref">
-                        <th class="nun_ref">4º Refeição</th>
-                    </tr>
-                </thead>
-
-                <tr>
-                    <td class="nome">{{ valor.ref_41 }}</td>
-                    <td class="quant">{{ valor.quant_41 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_41 }}</strong> Carb:<strong>{{ valor.carb_41 }}</strong> Gord: <strong>{{ valor.gord_41 }}</strong>  Kcal: <strong>{{ valor.kcal_41 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_42 }}</td>
-                    <td class="quant">{{ valor.quant_42 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_42 }}</strong> Carb:<strong>{{ valor.carb_42 }}</strong> Gord: <strong>{{ valor.gord_42 }}</strong>  Kcal: <strong>{{ valor.kcal_42 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_43 }}</td>
-                    <td class="quant">{{ valor.quant_43 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_43 }}</strong> Carb:<strong>{{ valor.carb_43 }}</strong> Gord: <strong>{{ valor.gord_43 }}</strong>  Kcal: <strong>{{ valor.kcal_43 }}</strong> </td>
-                </tr>
-                {% endif %}
-
-
-                {% if valor.ref_51 != '' %}
-                <thead>
-                    <tr class="nun_ref">
-                        <th class="nun_ref">5º Refeição</th>
-                    </tr>
-                </thead>
-                <tr>
-                    <td class="nome">{{ valor.ref_51 }}</td>
-                    <td class="quant">{{ valor.quant_51 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_51 }}</strong> Carb:<strong>{{ valor.carb_51 }}</strong> Gord: <strong>{{ valor.gord_51 }}</strong>  Kcal: <strong>{{ valor.kcal_51 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_52 }}</td>
-                    <td class="quant">{{ valor.quant_52 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_52 }}</strong> Carb:<strong>{{ valor.carb_52 }}</strong> Gord: <strong>{{ valor.gord_52 }}</strong>  Kcal: <strong>{{ valor.kcal_52 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_53 }}</td>
-                    <td class="quant">{{ valor.quant_53 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_53 }}</strong> Carb:<strong>{{ valor.carb_53 }}</strong> Gord: <strong>{{ valor.gord_53 }}</strong>  Kcal: <strong>{{ valor.kcal_53 }}</strong> </td>
-                </tr>
-                {% endif %}
-
-                {% if valor.ref_61 != '' %}
-                <thead>
-                    <tr class="nun_ref">
-                        <th class="nun_ref">6º Refeição</th>
-                    </tr>
-                </thead>
-
-                <tr>
-                    <td class="nome">{{ valor.ref_61 }}</td>
-                    <td class="quant">{{ valor.quant_61 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_61 }}</strong> Carb:<strong>{{ valor.carb_61 }}</strong> Gord: <strong>{{ valor.gord_61 }}</strong>  Kcal: <strong>{{ valor.kcal_61 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_62 }}</td>
-                    <td class="quant">{{ valor.quant_62 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_62 }}</strong> Carb:<strong>{{ valor.carb_62 }}</strong> Gord: <strong>{{ valor.gord_62 }}</strong>  Kcal: <strong>{{ valor.kcal_62 }}</strong> </td>
-                </tr>
-                <tr>
-                    <td class="nome">{{ valor.ref_63 }}</td>
-                    <td class="quant">{{ valor.quant_63 }} g</td>
-                    <td class='Macros'>Prot: <strong>{{ valor.prot_63 }}</strong> Carb:<strong>{{ valor.carb_63 }}</strong> Gord: <strong>{{ valor.gord_63 }}</strong>  Kcal: <strong>{{ valor.kcal_63 }}</strong> </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-                <thead>
-                    <tr class="nun_ref">
-                        <th class="nun_ref">Macros</th>
-                    </tr>
-                </thead>
-                <tr style="display: flex;flex-direction:row;">
-                    <td style="color: white;" for="">Caloria: {{total_caloria}}</td>
-                    <td>Proteina: {{total_proteina}}</td>
-                    <td>Carboidratos: {{total_carboidratos}}</td>
-                    <td>Gordura: {{total_gordura}}</td>
-                </tr>
+              {% endfor %}
             </tbody>
+          </table>
+        </article>
+      {% endfor %}
+    {% else %}
+      <article class="meal-card">
+        <header><h2>Nenhuma refeicao salva</h2></header>
+        <table class="meal-table">
+          <tbody>
+            <tr>
+              <td>Adicione alimentos na tela de criacao para gerar seu cardapio.</td>
+              <td class="qty-cell">-</td>
+              <td class="macros-cell">-</td>
+            </tr>
+          </tbody>
         </table>
-        <br>
-        <br>
+      </article>
+    {% endif %}
+  </section>
+
+  <section class="print-plan">
+    <div class="print-head-meta">
+      <span>{% now "d/m/Y, H:i" %}</span>
+      <span class="print-head-meta-center">Relatorio Nutrients</span>
+      <span class="print-head-meta-right">Dieta de {{ user.username }}</span>
     </div>
 
+    <header class="print-plan-header">
+      <div class="print-brand-block">
+        <img src="{% static 'img/logo_jovem_programador.png' %}" alt="Logo Jovem Programador Nutrients" />
+        <div>
+          <h1>Planejamento de Dieta</h1>
+          <p>Plano alimentar diario com distribuicao por refeicao</p>
+        </div>
+      </div>
+      <div class="print-plan-meta">
+        <span>Documento: DP-{{ user.id }}-{{ total_caloria }}</span>
+        <span>Emitido em {% now "d/m/Y" %}</span>
+      </div>
+    </header>
+
+    <section class="print-client-grid">
+      <div>
+        <span>Usuario</span>
+        <strong>{{ user.username }}</strong>
+      </div>
+      <div>
+        <span>Objetivo</span>
+        <strong>{{ objetivo_nome|default:"Nao informado" }}</strong>
+      </div>
+      <div>
+        <span>Nivel de atividade</span>
+        <strong>{{ nivel_atividade_nome|default:"Nao informado" }}</strong>
+      </div>
+      <div>
+        <span>Peso</span>
+        <strong>{{ peso_usuario|default:"-" }} kg</strong>
+      </div>
+      <div>
+        <span>Altura</span>
+        <strong>{{ altura_usuario|default:"-" }} cm</strong>
+      </div>
+      <div>
+        <span>Idade</span>
+        <strong>{{ idade_usuario|default:"-" }} anos</strong>
+      </div>
+    </section>
+
+    <section class="print-plan-totals">
+      <div>
+        <span>Total kcal</span>
+        <strong>{{ total_caloria }}</strong>
+      </div>
+      <div>
+        <span>Total proteina</span>
+        <strong>{{ total_proteina }} g</strong>
+      </div>
+      <div>
+        <span>Total carboidratos</span>
+        <strong>{{ total_carboidratos }} g</strong>
+      </div>
+      <div>
+        <span>Total gordura</span>
+        <strong>{{ total_gordura }} g</strong>
+      </div>
+      <div>
+        <span>Total quantidade</span>
+        <strong>{{ total_quantidade }} g</strong>
+      </div>
+      <div>
+        <span>Gasto diario base</span>
+        <strong>{{ gasto_dia|default:"-" }} kcal</strong>
+      </div>
+    </section>
+
+    {% if meals %}
+      <section class="print-meal-summary">
+        <h2>Resumo por refeicao</h2>
+        <table class="print-summary-table">
+          <thead>
+            <tr>
+              <th>Refeicao</th>
+              <th>Quantidade</th>
+              <th>Kcal</th>
+              <th>Proteina</th>
+              <th>Gordura</th>
+              <th>Carbo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for meal in meals %}
+              <tr>
+                <td>{{ meal.numero }}a refeicao</td>
+                <td>{{ meal.subtotal_qtd }} g</td>
+                <td>{{ meal.subtotal_kcal }}</td>
+                <td>{{ meal.subtotal_prot }} g</td>
+                <td>{{ meal.subtotal_gord }} g</td>
+                <td>{{ meal.subtotal_carb }} g</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      {% for meal in meals %}
+        <article class="print-meal-block">
+          <h2>{{ meal.numero }}a refeicao</h2>
+          <table class="print-meal-table">
+            <thead>
+              <tr>
+                <th>Alimento</th>
+                <th>Quantidade</th>
+                <th>Kcal</th>
+                <th>Proteina</th>
+                <th>Gordura</th>
+                <th>Carbo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in meal.itens %}
+                <tr>
+                  <td>{{ item.nome }}</td>
+                  <td>{{ item.quantidade }} g</td>
+                  <td>{{ item.kcal }}</td>
+                  <td>{{ item.prot }} g</td>
+                  <td>{{ item.gord }} g</td>
+                  <td>{{ item.carb }} g</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Subtotal da refeicao</th>
+                <th>{{ meal.subtotal_qtd }} g</th>
+                <th>{{ meal.subtotal_kcal }}</th>
+                <th>{{ meal.subtotal_prot }} g</th>
+                <th>{{ meal.subtotal_gord }} g</th>
+                <th>{{ meal.subtotal_carb }} g</th>
+              </tr>
+            </tfoot>
+          </table>
+        </article>
+      {% endfor %}
+    {% else %}
+      <article class="print-empty">
+        Nenhuma refeicao salva para impressao.
+      </article>
+    {% endif %}
+
+    <footer class="print-plan-footer">
+      <p>Plano gerado automaticamente pelo sistema Nutrients com base nas configuracoes salvas.</p>
+      <p>Responsavel: {{ user.username }} | Data de emissao: {% now "d/m/Y H:i" %}</p>
+    </footer>
+  </section>
 </div>
-
-
 {% endblock %}
