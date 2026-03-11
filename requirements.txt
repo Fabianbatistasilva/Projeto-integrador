@@ -8,6 +8,7 @@ django-allauth[socialaccount]>=65.14.1,<66.0
 # Runtime dependencies
 requests>=2.32.0,<3.0
 fontawesomefree>=6.6.0,<7.0
+python-dotenv>=1.0.1,<2.0
 
 # Deploy / production runtime
 gunicorn>=22.0.0,<23.0

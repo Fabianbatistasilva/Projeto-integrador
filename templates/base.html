@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block 'title' %}{% endblock %}</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'img/logo_jovem_programador.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/logo_fabian_gremio.svg' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
     <link href="{% static 'fontawesomefree/css/all.min.css' %}" rel="stylesheet" type="text/css" />
     {% block 'extra_css' %}{% endblock %}
@@ -16,7 +16,7 @@
       <nav class="site-nav">
         <div class="select_home">
           <a href="{% url 'home' %}">
-            <img src="{% static 'img/logo_jovem_programador.png' %}" alt="Logo Jovem Programador" />
+            <img src="{% static 'img/logo_fabian_gremio.svg' %}" alt="Logo Fabian Nutrients" />
           </a>
         </div>
 
@@ -29,7 +29,10 @@
                 <span class="summary-mobile-label">Menu</span>
               </summary>
               <div class="menu_items">
-                <a href="{% url 'tela_tmb' %}" class="menu-mobile-only"><i class="fa-solid fa-person-circle-plus"></i>Criar Dieta</a>
+                <a href="{% url 'tela_tmb' %}" class="menu-mobile-only">
+                  <i class="fa-solid fa-person-circle-plus"></i>
+                  <span class="nav-goal-text">{{ nav_goal_label }}</span>
+                </a>
                 {% if user.is_authenticated %}
                   <a href="{% url 'criar_dieta' %}"><i class="fa-solid fa-receipt"></i>Criar Refeicoes</a>
                   <a href="{% url 'diet_screen' %}"><i class="fa-solid fa-bowl-food"></i>Rever dieta</a>
@@ -43,7 +46,10 @@
           </div>
 
           <div class="criar_diet">
-            <a href="{% url 'tela_tmb' %}"><i class="fa-solid fa-person-circle-plus"></i>Criar Dieta</a>
+            <a href="{% url 'tela_tmb' %}" class="nav-goal-link">
+              <i class="fa-solid fa-person-circle-plus"></i>
+              <span class="nav-goal-text">{{ nav_goal_label }}</span>
+            </a>
           </div>
         </div>
       </nav>

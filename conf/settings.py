@@ -125,6 +125,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'nutri.context_processors.navigation_goal_context',
             ],
         },
     },
@@ -226,8 +227,13 @@ SITE_ID = env_int("DJANGO_SITE_ID", 1)
 LOGIN_REDIRECT_URL = 'home'
 
 # API externa (TACO): configuravel por ambiente.
-default_taco_base_url = "http://127.0.0.1:7000" if DEBUG else ""
-TACO_API_BASE_URL = str(os.getenv("TACO_API_BASE_URL", default_taco_base_url)).strip().rstrip("/")
+TACO_API_BASE_URL = str(os.getenv("TACO_API_BASE_URL", "")).strip().rstrip("/")
+TACO_API_ALIMENTOS_READ_ENDPOINT = str(
+    os.getenv("TACO_API_ALIMENTOS_READ_ENDPOINT", "/alimentos/")
+).strip()
+TACO_API_ALIMENTOS_WRITE_ENDPOINT = str(
+    os.getenv("TACO_API_ALIMENTOS_WRITE_ENDPOINT", "/alimentos/")
+).strip()
 TACO_API_TIMEOUT = int(os.getenv("TACO_API_TIMEOUT", "8"))
 TACO_API_WRITE_TIMEOUT = int(os.getenv("TACO_API_WRITE_TIMEOUT", "10"))
 TACO_API_TOKEN = env_token("TACO_API_TOKEN", "")
@@ -247,16 +253,42 @@ if not DEBUG and len(CSRF_TRUSTED_ORIGINS) == 0:
 if not DEBUG and DATABASE_URL == "":
     raise ImproperlyConfigured("Defina DATABASE_URL em producao.")
 
-if not DEBUG and TACO_API_BASE_URL == "":
-    raise ImproperlyConfigured("Defina TACO_API_BASE_URL em producao.")
+if TACO_API_BASE_URL == "":
+    raise ImproperlyConfigured(
+        "Defina TACO_API_BASE_URL em qualquer ambiente (base raiz da API)."
+    )
 
-if not DEBUG:
-    parsed_taco_url = urlparse(TACO_API_BASE_URL)
-    taco_host = str(parsed_taco_url.hostname or "").lower()
-    if parsed_taco_url.scheme not in {"http", "https"} or taco_host == "":
-        raise ImproperlyConfigured("TACO_API_BASE_URL invalida para producao.")
-    if taco_host in {"127.0.0.1", "localhost", "0.0.0.0"}:
-        raise ImproperlyConfigured("TACO_API_BASE_URL nao pode apontar para localhost em producao.")
+parsed_taco_url = urlparse(TACO_API_BASE_URL)
+taco_host = str(parsed_taco_url.hostname or "").lower()
+taco_path = str(parsed_taco_url.path or "").strip()
+has_legacy_path = taco_path not in {"", "/"}
+if parsed_taco_url.scheme not in {"http", "https"} or taco_host == "":
+    raise ImproperlyConfigured(
+        "TACO_API_BASE_URL invalida. Use URL http/https valida."
+    )
+if taco_host in {"127.0.0.1", "localhost", "0.0.0.0"}:
+    raise ImproperlyConfigured(
+        "TACO_API_BASE_URL nao pode apontar para localhost/127.0.0.1."
+    )
+if TACO_API_ALIMENTOS_READ_ENDPOINT != "":
+    if "://" in TACO_API_ALIMENTOS_READ_ENDPOINT or not TACO_API_ALIMENTOS_READ_ENDPOINT.startswith("/"):
+        raise ImproperlyConfigured(
+            "TACO_API_ALIMENTOS_READ_ENDPOINT deve ser path relativo iniciando com '/'."
+        )
+elif not has_legacy_path:
+    raise ImproperlyConfigured(
+        "Defina TACO_API_ALIMENTOS_READ_ENDPOINT."
+    )
+
+if TACO_API_ALIMENTOS_WRITE_ENDPOINT != "":
+    if "://" in TACO_API_ALIMENTOS_WRITE_ENDPOINT or not TACO_API_ALIMENTOS_WRITE_ENDPOINT.startswith("/"):
+        raise ImproperlyConfigured(
+            "TACO_API_ALIMENTOS_WRITE_ENDPOINT deve ser path relativo iniciando com '/'."
+        )
+elif not has_legacy_path:
+    raise ImproperlyConfigured(
+        "Defina TACO_API_ALIMENTOS_WRITE_ENDPOINT."
+    )
 
 REDIS_URL = str(os.getenv("REDIS_URL", "")).strip()
 CACHE_KEY_PREFIX = str(os.getenv("CACHE_KEY_PREFIX", "nutrients")).strip() or "nutrients"

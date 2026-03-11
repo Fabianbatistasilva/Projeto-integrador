@@ -4,6 +4,7 @@ import subprocess
 import sys
 from unittest.mock import Mock, patch
 
+import requests
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import SimpleTestCase, TestCase, override_settings
@@ -21,18 +22,18 @@ class CreateDietViewTests(TestCase):
     def _login(self):
         self.client.login(username=self.user.username, password=self.password)
 
-    @patch("nutri.views.fetch_taco_alimentos", return_value=[])
+    @patch("nutri.views_diet.fetch_taco_alimentos", return_value=[])
     def test_redirects_anonymous_user_to_login(self, _mock_fetch):
         response = self.client.get(reverse("criar_dieta"))
         self.assertRedirects(response, reverse("login_site"))
 
-    @patch("nutri.views.fetch_taco_alimentos", return_value=[])
+    @patch("nutri.views_diet.fetch_taco_alimentos", return_value=[])
     def test_redirects_authenticated_user_without_dieta_to_tmb(self, _mock_fetch):
         self._login()
         response = self.client.get(reverse("criar_dieta"))
         self.assertRedirects(response, reverse("tela_tmb"))
 
-    @patch("nutri.views.fetch_taco_alimentos", return_value=[])
+    @patch("nutri.views_diet.fetch_taco_alimentos", return_value=[])
     def test_rejects_empty_payload(self, _mock_fetch):
         self._login()
         make_dieta_for_user(self.user, objetivo=self.objetivo, atividade=self.atividade)
@@ -41,7 +42,7 @@ class CreateDietViewTests(TestCase):
         self.assertRedirects(response, reverse("criar_dieta"))
         self.assertFalse(ImprimirDieta.objects.filter(usuario=self.user).exists())
 
-    @patch("nutri.views.fetch_taco_alimentos", return_value=[])
+    @patch("nutri.views_diet.fetch_taco_alimentos", return_value=[])
     def test_rejects_invalid_json_payload(self, _mock_fetch):
         self._login()
         make_dieta_for_user(self.user, objetivo=self.objetivo, atividade=self.atividade)
@@ -50,7 +51,7 @@ class CreateDietViewTests(TestCase):
         self.assertRedirects(response, reverse("criar_dieta"))
         self.assertFalse(ImprimirDieta.objects.filter(usuario=self.user).exists())
 
-    @patch("nutri.views.fetch_taco_alimentos", return_value=[])
+    @patch("nutri.views_diet.fetch_taco_alimentos", return_value=[])
     def test_saves_valid_payload_and_syncs_legacy_fields(self, _mock_fetch):
         self._login()
         make_dieta_for_user(self.user, objetivo=self.objetivo, atividade=self.atividade)
@@ -134,16 +135,48 @@ class TacoSearchViewTests(TestCase):
         self._login()
         response = self.client.get(reverse("taco_search"))
         self.assertEqual(response.status_code, 503)
-        self.assertEqual(response.json()["detail"], "API TACO nao configurada neste ambiente.")
+        payload = response.json()
+        self.assertEqual(payload["detail"], "API TACO nao configurada neste ambiente.")
+        self.assertEqual(payload["error_type"], "config_error")
 
-    @override_settings(TACO_API_BASE_URL="http://fake.taco")
-    @patch("nutri.views.requests.get")
+    @override_settings(
+        TACO_API_BASE_URL="http://127.0.0.1:7000",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="/alimentos/",
+    )
+    def test_returns_503_when_api_base_points_to_localhost(self):
+        self._login()
+        response = self.client.get(reverse("taco_search"))
+        self.assertEqual(response.status_code, 503)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "config_error")
+        self.assertIn("localhost/127.0.0.1", payload["detail"])
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="https://fake.taco/alimentos/",
+    )
+    def test_returns_503_when_read_endpoint_setting_is_invalid(self):
+        self._login()
+        response = self.client.get(reverse("taco_search"))
+        self.assertEqual(response.status_code, 503)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "config_error")
+        self.assertIn("TACO_API_ALIMENTOS_READ_ENDPOINT", payload["detail"])
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="/alimentos/",
+    )
+    @patch("nutri.taco_client.requests.get")
     def test_returns_upstream_results(self, mock_get):
         self._login()
 
         mock_response = Mock()
-        mock_response.raise_for_status.return_value = None
+        mock_response.status_code = 200
         mock_response.json.return_value = {
+            "count": 1,
+            "next": None,
+            "previous": None,
             "results": [
                 {"name": "Arroz", "kcal": 130, "protein": 3, "fat": 0, "carbo": 28}
             ]
@@ -153,18 +186,47 @@ class TacoSearchViewTests(TestCase):
         response = self.client.get(reverse("taco_search"), {"search": "arroz"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()["results"]), 1)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertIsNone(response.json()["next"])
+        self.assertIsNone(response.json()["previous"])
 
         args, kwargs = mock_get.call_args
         self.assertEqual(args[0], "http://fake.taco/alimentos/")
         self.assertEqual(kwargs["params"]["search"], "arroz")
+        self.assertEqual(kwargs["params"]["page"], 1)
 
-    @override_settings(TACO_API_BASE_URL="http://fake.taco", TACO_SEARCH_CACHE_SECONDS=300)
-    @patch("nutri.views.requests.get")
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco/alimentos/",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="",
+    )
+    @patch("nutri.taco_client.requests.get")
+    def test_accepts_full_alimentos_endpoint_without_duplicate_path(self, mock_get):
+        self._login()
+
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"results": []}
+        mock_get.return_value = mock_response
+
+        response = self.client.get(reverse("taco_search"), {"search": "frango"})
+        self.assertEqual(response.status_code, 200)
+
+        args, kwargs = mock_get.call_args
+        self.assertEqual(args[0], "http://fake.taco/alimentos/")
+        self.assertEqual(kwargs["params"]["search"], "frango")
+        self.assertEqual(kwargs["params"]["page"], 1)
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="/alimentos/",
+        TACO_SEARCH_CACHE_SECONDS=300,
+    )
+    @patch("nutri.taco_client.requests.get")
     def test_uses_cache_for_repeated_search(self, mock_get):
         self._login()
 
         mock_response = Mock()
-        mock_response.raise_for_status.return_value = None
+        mock_response.status_code = 200
         mock_response.json.return_value = {
             "results": [
                 {"name": "Arroz", "kcal": 130, "protein": 3, "fat": 0, "carbo": 28}
@@ -178,6 +240,56 @@ class TacoSearchViewTests(TestCase):
         self.assertEqual(first.status_code, 200)
         self.assertEqual(second.status_code, 200)
         self.assertEqual(mock_get.call_count, 1)
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="/alimentos/",
+    )
+    @patch("nutri.taco_client.requests.get")
+    def test_forwards_page_parameter_to_upstream(self, mock_get):
+        self._login()
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"count": 30, "next": None, "previous": None, "results": []}
+        mock_get.return_value = mock_response
+
+        response = self.client.get(reverse("taco_search"), {"search": "arroz", "page": "2"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 30)
+
+        _, kwargs = mock_get.call_args
+        self.assertEqual(kwargs["params"]["page"], 2)
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="/alimentos/",
+    )
+    @patch("nutri.taco_client.requests.get", side_effect=requests.Timeout)
+    def test_returns_504_on_upstream_timeout(self, _mock_get):
+        self._login()
+        response = self.client.get(reverse("taco_search"), {"search": "arroz"})
+        self.assertEqual(response.status_code, 504)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "timeout")
+        self.assertIn("Tempo limite", payload["detail"])
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_READ_ENDPOINT="/alimentos/",
+    )
+    @patch("nutri.taco_client.requests.get")
+    def test_handles_upstream_non_json_error(self, mock_get):
+        self._login()
+        mock_response = Mock()
+        mock_response.status_code = 422
+        mock_response.json.side_effect = ValueError("invalid_json")
+        mock_get.return_value = mock_response
+
+        response = self.client.get(reverse("taco_search"), {"search": "arroz"})
+        self.assertEqual(response.status_code, 422)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "upstream_error")
+        self.assertEqual(payload["detail"], "Falha ao buscar alimentos na API TACO.")
 
 
 class TacoCreateViewTests(TestCase):
@@ -216,6 +328,9 @@ class TacoCreateViewTests(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 503)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "config_error")
+        self.assertEqual(payload["detail"], "API TACO nao configurada neste ambiente.")
 
     @override_settings(TACO_API_BASE_URL="http://fake.taco", TACO_API_TOKEN="")
     def test_returns_503_when_api_token_not_configured(self):
@@ -227,6 +342,40 @@ class TacoCreateViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json()["detail"], "Token da API TACO nao configurado neste ambiente.")
+
+    @override_settings(
+        TACO_API_BASE_URL="http://localhost:7000",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="/alimentos/",
+        TACO_API_TOKEN="fake-token",
+    )
+    def test_returns_503_when_write_base_points_to_localhost(self):
+        self._login()
+        response = self.client.post(
+            reverse("taco_create"),
+            data=json.dumps(self.valid_payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 503)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "config_error")
+        self.assertIn("localhost/127.0.0.1", payload["detail"])
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="https://fake.taco/alimentos/",
+        TACO_API_TOKEN="fake-token",
+    )
+    def test_returns_503_when_write_endpoint_setting_is_invalid(self):
+        self._login()
+        response = self.client.post(
+            reverse("taco_create"),
+            data=json.dumps(self.valid_payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 503)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "config_error")
+        self.assertIn("TACO_API_ALIMENTOS_WRITE_ENDPOINT", payload["detail"])
 
     @override_settings(TACO_API_BASE_URL="http://fake.taco", TACO_API_TOKEN="fake-token")
     def test_rejects_invalid_json_payload(self):
@@ -266,7 +415,7 @@ class TacoCreateViewTests(TestCase):
         self.assertIn("nao pode ser negativo", response.json()["detail"])
 
     @override_settings(TACO_API_BASE_URL="http://fake.taco", TACO_API_TOKEN="fake-token")
-    @patch("nutri.views.requests.post")
+    @patch("nutri.taco_client.requests.post")
     def test_propagates_upstream_error(self, mock_post):
         self._login()
         mock_response = Mock()
@@ -284,8 +433,12 @@ class TacoCreateViewTests(TestCase):
         _, kwargs = mock_post.call_args
         self.assertEqual(kwargs["headers"]["Authorization"], "Token fake-token")
 
-    @override_settings(TACO_API_BASE_URL="http://fake.taco", TACO_API_TOKEN="fake-token")
-    @patch("nutri.views.requests.post")
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="/alimentos/",
+        TACO_API_TOKEN="fake-token",
+    )
+    @patch("nutri.taco_client.requests.post")
     def test_returns_success_when_upstream_creates_food(self, mock_post):
         self._login()
         mock_response = Mock()
@@ -300,8 +453,121 @@ class TacoCreateViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["detail"], "created")
-        _, kwargs = mock_post.call_args
+        args, kwargs = mock_post.call_args
+        self.assertEqual(args[0], "http://fake.taco/alimentos/")
         self.assertEqual(kwargs["headers"]["Authorization"], "Token fake-token")
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco/alimentos",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="",
+        TACO_API_TOKEN="fake-token",
+    )
+    @patch("nutri.taco_client.requests.post")
+    def test_create_uses_full_endpoint_without_duplicate_path(self, mock_post):
+        self._login()
+        mock_response = Mock()
+        mock_response.status_code = 201
+        mock_response.json.return_value = {"id": 2, "name": "Alimento endpoint"}
+        mock_post.return_value = mock_response
+
+        response = self.client.post(
+            reverse("taco_create"),
+            data=json.dumps(self.valid_payload),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        args, kwargs = mock_post.call_args
+        self.assertEqual(args[0], "http://fake.taco/alimentos/")
+        self.assertEqual(kwargs["headers"]["Authorization"], "Token fake-token")
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="/alimentos/editor/",
+        TACO_API_TOKEN="fake-token",
+    )
+    @patch("nutri.taco_client.requests.post")
+    def test_create_uses_custom_write_endpoint_when_configured(self, mock_post):
+        self._login()
+        mock_response = Mock()
+        mock_response.status_code = 201
+        mock_response.json.return_value = {"id": 3, "name": "Alimento editor"}
+        mock_post.return_value = mock_response
+
+        response = self.client.post(
+            reverse("taco_create"),
+            data=json.dumps(self.valid_payload),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        args, kwargs = mock_post.call_args
+        self.assertEqual(args[0], "http://fake.taco/alimentos/editor/")
+        self.assertEqual(kwargs["headers"]["Authorization"], "Token fake-token")
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="/alimentos/",
+        TACO_API_TOKEN="fake-token",
+    )
+    @patch("nutri.taco_client.requests.post", side_effect=requests.Timeout)
+    def test_create_returns_504_on_upstream_timeout(self, _mock_post):
+        self._login()
+        response = self.client.post(
+            reverse("taco_create"),
+            data=json.dumps(self.valid_payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 504)
+        payload = response.json()
+        self.assertEqual(payload["error_type"], "timeout")
+        self.assertIn("Tempo limite", payload["detail"])
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="/alimentos/",
+        TACO_API_TOKEN="fake-token",
+    )
+    @patch("nutri.taco_client.requests.post")
+    def test_create_propagates_403_and_error_type(self, mock_post):
+        self._login()
+        mock_response = Mock()
+        mock_response.status_code = 403
+        mock_response.json.return_value = {"detail": "forbidden"}
+        mock_post.return_value = mock_response
+
+        response = self.client.post(
+            reverse("taco_create"),
+            data=json.dumps(self.valid_payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 403)
+        payload = response.json()
+        self.assertEqual(payload["detail"], "forbidden")
+        self.assertEqual(payload["error_type"], "upstream_error")
+
+    @override_settings(
+        TACO_API_BASE_URL="http://fake.taco",
+        TACO_API_ALIMENTOS_WRITE_ENDPOINT="/alimentos/",
+        TACO_API_TOKEN="fake-token",
+    )
+    @patch("nutri.taco_client.requests.post")
+    def test_create_handles_upstream_non_json_error(self, mock_post):
+        self._login()
+        mock_response = Mock()
+        mock_response.status_code = 422
+        mock_response.json.side_effect = ValueError("invalid_json")
+        mock_post.return_value = mock_response
+
+        response = self.client.post(
+            reverse("taco_create"),
+            data=json.dumps(self.valid_payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 422)
+        payload = response.json()
+        self.assertEqual(payload["detail"], "Falha ao criar alimento na API TACO.")
+        self.assertEqual(payload["error_type"], "upstream_error")
 
 
 class UserRegistrationViewTests(TestCase):
@@ -360,6 +626,14 @@ class UserLoginSecurityTests(TestCase):
 
 
 class SettingsHardeningTests(SimpleTestCase):
+    def _base_debug_env(self):
+        env = os.environ.copy()
+        env["DJANGO_DEBUG"] = "true"
+        env["TACO_API_BASE_URL"] = "https://api.example.com"
+        env["TACO_API_ALIMENTOS_READ_ENDPOINT"] = "/alimentos/"
+        env["TACO_API_ALIMENTOS_WRITE_ENDPOINT"] = "/alimentos/"
+        return env
+
     def _base_production_env(self):
         env = os.environ.copy()
         env["DJANGO_DEBUG"] = "false"
@@ -369,6 +643,8 @@ class SettingsHardeningTests(SimpleTestCase):
         env["DATABASE_URL"] = "postgres://user:pass@localhost:5432/nutrients"
         env["REDIS_URL"] = "redis://localhost:6379/0"
         env["TACO_API_BASE_URL"] = "https://api.example.com"
+        env["TACO_API_ALIMENTOS_READ_ENDPOINT"] = "/alimentos/"
+        env["TACO_API_ALIMENTOS_WRITE_ENDPOINT"] = "/alimentos/"
         return env
 
     def _import_settings(self, env):
@@ -407,6 +683,33 @@ class SettingsHardeningTests(SimpleTestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("DJANGO_CSRF_TRUSTED_ORIGINS", combined)
 
+    def test_debug_without_taco_api_base_url_fails_fast(self):
+        env = self._base_debug_env()
+        env.pop("TACO_API_BASE_URL", None)
+
+        result = self._import_settings(env)
+        combined = (result.stdout or "") + (result.stderr or "")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("TACO_API_BASE_URL", combined)
+
+    def test_debug_rejects_local_taco_api_base_url(self):
+        env = self._base_debug_env()
+        env["TACO_API_BASE_URL"] = "http://localhost:7000"
+
+        result = self._import_settings(env)
+        combined = (result.stdout or "") + (result.stderr or "")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("TACO_API_BASE_URL", combined)
+
+    def test_debug_rejects_invalid_read_endpoint_format(self):
+        env = self._base_debug_env()
+        env["TACO_API_ALIMENTOS_READ_ENDPOINT"] = "alimentos/"
+
+        result = self._import_settings(env)
+        combined = (result.stdout or "") + (result.stderr or "")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("TACO_API_ALIMENTOS_READ_ENDPOINT", combined)
+
     def test_production_rejects_local_taco_api_base_url(self):
         env = self._base_production_env()
         env["TACO_API_BASE_URL"] = "http://127.0.0.1:7000"
@@ -415,6 +718,24 @@ class SettingsHardeningTests(SimpleTestCase):
         combined = (result.stdout or "") + (result.stderr or "")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("TACO_API_BASE_URL", combined)
+
+    def test_production_rejects_invalid_read_endpoint_format(self):
+        env = self._base_production_env()
+        env["TACO_API_ALIMENTOS_READ_ENDPOINT"] = "alimentos/"
+
+        result = self._import_settings(env)
+        combined = (result.stdout or "") + (result.stderr or "")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("TACO_API_ALIMENTOS_READ_ENDPOINT", combined)
+
+    def test_production_rejects_invalid_write_endpoint_format(self):
+        env = self._base_production_env()
+        env["TACO_API_ALIMENTOS_WRITE_ENDPOINT"] = "https://api.example.com/alimentos/"
+
+        result = self._import_settings(env)
+        combined = (result.stdout or "") + (result.stderr or "")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("TACO_API_ALIMENTOS_WRITE_ENDPOINT", combined)
 
 
 class HealthcheckViewTests(TestCase):
@@ -427,7 +748,7 @@ class HealthcheckViewTests(TestCase):
         self.assertEqual(payload["cache"], "ok")
         self.assertIn("timestamp", payload)
 
-    @patch("nutri.views.connection.cursor", side_effect=Exception("db_down"))
+    @patch("nutri.views_health.connection.cursor", side_effect=Exception("db_down"))
     def test_returns_503_when_database_check_fails(self, _mock_cursor):
         response = self.client.get(reverse("healthcheck"))
         self.assertEqual(response.status_code, 503)
@@ -437,7 +758,7 @@ class HealthcheckViewTests(TestCase):
         self.assertEqual(payload["cache"], "ok")
 
     @override_settings(DEBUG=False)
-    @patch("nutri.views.cache.set", side_effect=Exception("cache_down"))
+    @patch("nutri.views_health.cache.set", side_effect=Exception("cache_down"))
     def test_returns_503_when_cache_check_fails_in_production(self, _mock_cache_set):
         response = self.client.get(reverse("healthcheck"))
         self.assertEqual(response.status_code, 503)

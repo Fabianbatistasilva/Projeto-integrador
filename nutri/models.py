@@ -241,6 +241,19 @@ class ItemRefeicao(models.Model):
 
     class Meta:
         ordering = ['refeicao', 'ordem', 'id']
+        indexes = [
+            models.Index(fields=['dieta', 'refeicao', 'ordem'], name='item_ref_dieta_ord_idx'),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(refeicao__gte=1) & models.Q(refeicao__lte=6),
+                name='item_refeicao_range_ck',
+            ),
+            models.CheckConstraint(
+                check=models.Q(ordem__gte=1),
+                name='item_ordem_positive_ck',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.dieta.usuario.username} - {self.refeicao}a refeicao - {self.alimento}'

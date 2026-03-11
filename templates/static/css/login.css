@@ -12,14 +12,25 @@ body.auth-page .select_home {
   width: 230px;
 }
 
-body.auth-page .select_opcoes > div {
+body.auth-page .select_opcoes > .user {
+  flex-basis: 142px;
   width: 142px;
+  height: 42px;
+}
+
+body.auth-page .select_opcoes > .criar_diet {
+  width: auto;
   height: 42px;
 }
 
 body.auth-page .user > details > summary,
 body.auth-page .criar_diet > a {
   font-size: 0.95rem;
+}
+
+body.auth-page .criar_diet > a {
+  min-width: 228px;
+  padding: 0 16px;
 }
 
 .container_login {

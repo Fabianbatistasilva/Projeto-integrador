@@ -564,11 +564,58 @@
   background: #4b7cc6;
 }
 
+.button_de_busca_taco.is-loading {
+  opacity: 0.8;
+  cursor: wait;
+}
+
 .button_de_busca_taco:disabled,
 .campo_de_busca_taco:disabled,
 .taco-create-form input:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+.taco-feedback {
+  margin-top: 8px;
+  min-height: 20px;
+  font-size: 0.82rem;
+  color: #cad8f5;
+}
+
+.planner-feedback {
+  margin-top: 6px;
+}
+
+.taco-feedback.is-info {
+  color: #cad8f5;
+}
+
+.taco-feedback.is-success {
+  color: #bdf4cf;
+}
+
+.taco-feedback.is-error {
+  color: #ffcfb5;
+}
+
+.taco-pagination {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.taco-pagination .button_de_busca_taco {
+  min-width: 96px;
+  padding: 7px 10px;
+}
+
+#taco-page-label {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #d7e2f7;
 }
 
 .taco-create-mobile-action {
@@ -719,6 +766,15 @@
 
   .search-form {
     grid-template-columns: 1fr;
+  }
+
+  .taco-pagination {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #taco-page-label {
+    grid-column: 1 / -1;
+    order: -1;
   }
 
   .summary-toggle-btn {

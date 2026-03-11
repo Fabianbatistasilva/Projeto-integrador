@@ -49,9 +49,17 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.select_opcoes > div {
+.select_opcoes > .user {
+  flex: 0 0 152px;
   width: 152px;
   height: 46px;
+}
+
+.select_opcoes > .criar_diet {
+  flex: 0 0 auto;
+  width: auto;
+  height: 46px;
+  display: flex;
 }
 
 .user {
@@ -66,7 +74,6 @@ body {
 
 .user > details > summary,
 .criar_diet > a {
-  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -81,6 +88,30 @@ body {
   text-decoration: none;
   cursor: pointer;
   box-sizing: border-box;
+}
+
+.user > details > summary {
+  width: 100%;
+}
+
+.criar_diet > a {
+  width: auto;
+  min-width: 244px;
+  padding: 0 18px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.criar_diet > a i,
+.menu-mobile-only i {
+  flex: 0 0 18px;
+  width: 18px;
+  text-align: center;
+}
+
+.nav-goal-text {
+  display: inline-block;
+  line-height: 1;
 }
 
 .summary-mobile-label,

@@ -7,6 +7,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      TACO_API_BASE_URL: "https://web-production-9a2e7.up.railway.app"
+      TACO_API_ALIMENTOS_READ_ENDPOINT: "/alimentos/"
+      TACO_API_ALIMENTOS_WRITE_ENDPOINT: "/alimentos/"
 
     steps:
       - name: Checkout
@@ -37,7 +41,7 @@ jobs:
           DJANGO_SECRET_KEY: "x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x_x"
           DJANGO_ALLOWED_HOSTS: "example.com"
           DJANGO_CSRF_TRUSTED_ORIGINS: "https://example.com"
-          DATABASE_URL: "postgres://user:pass@localhost:5432/nutrients"
-          REDIS_URL: "redis://localhost:6379/0"
+          DATABASE_URL: "postgresql://user:pass@db.example.com:5432/nutrients"
+          REDIS_URL: "redis://cache.example.com:6379/0"
           TACO_API_BASE_URL: "https://api.example.com"
         run: python -c "import conf.settings; print('settings-import-ok')"

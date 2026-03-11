@@ -1,242 +1,16 @@
-const REFEICAO_SUFFIX = {
-  1: "one",
-  2: "two",
-  3: "tree",
-  4: "four",
-  5: "five",
-  6: "six",
-};
-
-const TOTAL_REFEICOES = 6;
-const MIN_ROWS_PER_MEAL = 1;
-const SUMMARY_MOBILE_BREAKPOINT = "(max-width: 1180px)";
-const MOBILE_COLLAPSE_BREAKPOINT = "(max-width: 760px)";
-const state = {
-  activeRefeicao: null,
-  activeRowId: "",
-  rowCounter: 0,
-  tacoCreateModalOpen: false,
-  summaryCollapsed: false,
-  wasSummaryMobile: null,
-  wasCollapseMobile: null,
-};
-
-function parseNumeric(value) {
-  const normalized = String(value ?? "")
-    .replace("kcal", "")
-    .replace("g", "")
-    .replace(",", ".")
-    .replace(/[^0-9.-]/g, "");
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function toInt(value) {
-  return Math.trunc(parseNumeric(value));
-}
-
-function getCookie(name) {
-  const prefix = `${name}=`;
-  const cookies = document.cookie ? document.cookie.split(";") : [];
-  for (const rawCookie of cookies) {
-    const cookie = rawCookie.trim();
-    if (cookie.startsWith(prefix)) {
-      return decodeURIComponent(cookie.substring(prefix.length));
-    }
-  }
-  return "";
-}
-
-function isTacoConfigured() {
-  const panel = document.querySelector(".table-panel[data-taco-configured]");
-  return panel ? panel.dataset.tacoConfigured !== "0" : true;
-}
-
-function getSummaryElements() {
-  return {
-    sideColumn: document.getElementById("side_column"),
-    panel: document.getElementById("summary_panel"),
-    button: document.getElementById("summary_toggle_btn"),
-  };
-}
-
-function updateSummaryToggleText(collapsed) {
-  const { button } = getSummaryElements();
-  if (!button) {
-    return;
-  }
-  button.innerText = collapsed ? "Mostrar resumo do dia" : "Ocultar resumo do dia";
-  button.setAttribute("aria-expanded", collapsed ? "false" : "true");
-}
-
-function setSummaryCollapsed(collapsed) {
-  const { sideColumn, panel, button } = getSummaryElements();
-  if (!sideColumn || !panel || !button) {
-    return;
-  }
-
-  state.summaryCollapsed = collapsed;
-  sideColumn.classList.toggle("is-collapsed", collapsed);
-  panel.hidden = collapsed;
-  updateSummaryToggleText(collapsed);
-}
-
-function isSummaryMobileMode() {
-  return window.matchMedia(SUMMARY_MOBILE_BREAKPOINT).matches;
-}
-
-function initializeSummaryToggle() {
-  const { button } = getSummaryElements();
-  if (!button) {
-    return;
-  }
-
-  const mobileNow = isSummaryMobileMode();
-  state.wasSummaryMobile = mobileNow;
-  setSummaryCollapsed(mobileNow);
-
-  button.addEventListener("click", () => {
-    setSummaryCollapsed(!state.summaryCollapsed);
-  });
-
-  window.addEventListener("resize", () => {
-    const mobileCurrent = isSummaryMobileMode();
-    if (mobileCurrent !== state.wasSummaryMobile) {
-      state.wasSummaryMobile = mobileCurrent;
-      setSummaryCollapsed(mobileCurrent);
-    }
-  });
-}
-
-function isMobileCollapseMode() {
-  return window.matchMedia(MOBILE_COLLAPSE_BREAKPOINT).matches;
-}
-
-function updatePlannerToggleText(collapsed) {
-  const button = document.getElementById("planner_toggle_btn");
-  if (!button) {
-    return;
-  }
-  button.innerText = collapsed ? "Mostrar metas" : "Reduzir metas";
-  button.setAttribute("aria-expanded", collapsed ? "false" : "true");
-}
-
-function setPlannerCollapsed(collapsed) {
-  const panel = document.querySelector(".planner-panel");
-  const content = document.getElementById("planner_metrics_block");
-  if (!panel || !content) {
-    return;
-  }
-
-  panel.classList.toggle("planner-metrics-collapsed", collapsed);
-  content.hidden = collapsed;
-  updatePlannerToggleText(collapsed);
-}
-
-function updateRefToggleText(refeicao, collapsed) {
-  const button = document.querySelector(`.ref-toggle-btn[data-ref-toggle='${refeicao}']`);
-  if (!button) {
-    return;
-  }
-  button.innerText = collapsed ? "Expandir" : "Reduzir";
-  button.setAttribute("aria-expanded", collapsed ? "false" : "true");
-}
-
-function setRefeicaoCollapsed(refeicao, collapsed) {
-  const card = getRefeicaoSection(refeicao);
-  const content = document.getElementById(`ref_content_${refeicao}`);
-  if (!card || !content) {
-    return;
-  }
-
-  card.classList.toggle("is-collapsed", collapsed);
-  content.hidden = collapsed;
-  updateRefToggleText(refeicao, collapsed);
-}
-
-function togglePlannerMetrics() {
-  const panel = document.querySelector(".planner-panel");
-  const collapsed = !panel?.classList.contains("planner-metrics-collapsed");
-  setPlannerCollapsed(collapsed);
-}
-
-function toggleRefeicaoCard(refeicao) {
-  const refeicaoInt = toInt(refeicao);
-  if (refeicaoInt < 1 || refeicaoInt > TOTAL_REFEICOES) {
-    return;
-  }
-  const card = getRefeicaoSection(refeicaoInt);
-  const collapsed = !card?.classList.contains("is-collapsed");
-  setRefeicaoCollapsed(refeicaoInt, collapsed);
-}
-
-function collapseOtherMealsOnMobile() {
-  const visibleMeals = [];
-  for (let refeicao = 1; refeicao <= TOTAL_REFEICOES; refeicao += 1) {
-    if (isRefeicaoVisible(refeicao)) {
-      visibleMeals.push(refeicao);
-    }
-  }
-
-  if (visibleMeals.length === 0) {
-    return;
-  }
-
-  const keepOpen = visibleMeals[0];
-  for (let refeicao = 1; refeicao <= TOTAL_REFEICOES; refeicao += 1) {
-    if (!isRefeicaoVisible(refeicao)) {
-      setRefeicaoCollapsed(refeicao, false);
-      continue;
-    }
-    setRefeicaoCollapsed(refeicao, refeicao !== keepOpen);
-  }
-}
-
-function initializeMobileCollapsers() {
-  const applyCollapseMode = () => {
-    const mobileNow = isMobileCollapseMode();
-    if (state.wasCollapseMobile === null) {
-      state.wasCollapseMobile = mobileNow;
-      if (mobileNow) {
-        collapseOtherMealsOnMobile();
-      }
-      if (!mobileNow) {
-        setPlannerCollapsed(false);
-        for (let refeicao = 1; refeicao <= TOTAL_REFEICOES; refeicao += 1) {
-          setRefeicaoCollapsed(refeicao, false);
-        }
-      }
-      return;
-    }
-
-    if (mobileNow !== state.wasCollapseMobile) {
-      state.wasCollapseMobile = mobileNow;
-      if (mobileNow) {
-        collapseOtherMealsOnMobile();
-      }
-      if (!mobileNow) {
-        setPlannerCollapsed(false);
-        for (let refeicao = 1; refeicao <= TOTAL_REFEICOES; refeicao += 1) {
-          setRefeicaoCollapsed(refeicao, false);
-        }
-      }
-    }
-  };
-
-  applyCollapseMode();
-  window.addEventListener("resize", applyCollapseMode);
-}
-
-function setText(id, text) {
-  const element = document.getElementById(id);
-  if (element) {
-    element.innerText = text;
-  }
-}
-
 function getRefeicaoSection(refeicao) {
   const suffix = REFEICAO_SUFFIX[refeicao];
   return suffix ? document.querySelector(`.refeicoes_user_${suffix}`) : null;
+}
+
+function setPlannerFeedback(message, tone = "error") {
+  const feedback = document.getElementById("planner-feedback");
+  if (!feedback) {
+    return;
+  }
+  feedback.classList.remove("is-info", "is-success", "is-error");
+  feedback.classList.add(tone === "error" ? "is-error" : tone === "success" ? "is-success" : "is-info");
+  feedback.innerText = message || "";
 }
 
 function isRefeicaoVisible(refeicao) {
@@ -676,13 +450,13 @@ function validateRefeicao(refeicao) {
     const quantidade = getRowQuantity(row);
 
     if (!hasFood && quantidade > 0) {
-      alert("Existe quantidade preenchida sem alimento selecionado.");
+      setPlannerFeedback("Existe quantidade preenchida sem alimento selecionado.", "error");
       setActiveRow(refeicao, row.dataset.rowId);
       return false;
     }
 
     if (hasFood && quantidade <= 0) {
-      alert("Informe a quantidade em gramas para os alimentos selecionados.");
+      setPlannerFeedback("Informe a quantidade em gramas para os alimentos selecionados.", "error");
       const qty = getRowQuantityInput(row);
       if (qty) {
         qty.focus();
@@ -697,10 +471,11 @@ function validateRefeicao(refeicao) {
   }
 
   if (foodCount === 0) {
-    alert("Adicione pelo menos um alimento nessa refeicao.");
+    setPlannerFeedback("Adicione pelo menos um alimento nessa refeicao.", "error");
     return false;
   }
 
+  setPlannerFeedback("", "info");
   return true;
 }
 
@@ -841,18 +616,18 @@ function copyMealTo(sourceRefeicao) {
   const targetRefeicao = toInt(targetSelect?.value);
 
   if (targetRefeicao < 1 || targetRefeicao > TOTAL_REFEICOES) {
-    alert("Escolha uma refeicao de destino para copiar.");
+    setPlannerFeedback("Escolha uma refeicao de destino para copiar.", "error");
     return;
   }
 
   if (targetRefeicao === sourceRefeicao) {
-    alert("Escolha uma refeicao diferente da origem.");
+    setPlannerFeedback("Escolha uma refeicao diferente da origem.", "error");
     return;
   }
 
   const sourceItems = collectMealItems(sourceRefeicao);
   if (sourceItems.length === 0) {
-    alert("A refeicao de origem nao possui alimentos validos para copiar.");
+    setPlannerFeedback("A refeicao de origem nao possui alimentos validos para copiar.", "error");
     return;
   }
 
@@ -862,6 +637,7 @@ function copyMealTo(sourceRefeicao) {
     setActiveRow(targetRefeicao, firstTargetRow.dataset.rowId);
   }
   updateResumoDiario();
+  setPlannerFeedback("Refeicao copiada com sucesso.", "success");
 }
 
 function setupCopyControls() {
@@ -1025,7 +801,7 @@ function adicionar_alimento(alimentoTabela) {
   }
 
   if (!row || !state.activeRefeicao) {
-    alert("Selecione uma linha da refeicao para inserir o alimento.");
+    setPlannerFeedback("Selecione uma linha da refeicao para inserir o alimento.", "error");
     return;
   }
 
@@ -1056,6 +832,7 @@ function adicionar_alimento(alimentoTabela) {
   }
 
   updateResumoDiario();
+  setPlannerFeedback("Alimento inserido na refeicao selecionada.", "success");
 }
 
 function buildPayloadForSubmit() {
@@ -1124,284 +901,11 @@ function bindMealFormSubmit() {
     try {
       const payload = buildPayloadForSubmit();
       payloadInput.value = JSON.stringify(payload);
+      setPlannerFeedback("", "info");
     } catch (error) {
       event.preventDefault();
-      alert(error.message || "Nao foi possivel validar a dieta.");
+      setPlannerFeedback(error.message || "Nao foi possivel validar a dieta.", "error");
     }
   });
 }
 
-function buildTacoRow(alimento) {
-  const row = document.createElement("tr");
-  row.className = "row_alimentos";
-  row.addEventListener("click", () => adicionar_alimento(row));
-
-  const nome = document.createElement("td");
-  nome.className = "td_alimento_1";
-  nome.textContent = alimento.name ?? "";
-
-  const kcal = document.createElement("td");
-  kcal.className = "td_kcal";
-  kcal.textContent = `${toInt(alimento.kcal)}kcal`;
-
-  const prot = document.createElement("td");
-  prot.className = "td_prot";
-  prot.textContent = `${toInt(alimento.protein)}g`;
-
-  const gord = document.createElement("td");
-  gord.className = "td_gordura";
-  gord.textContent = `${toInt(alimento.fat)}g`;
-
-  const carb = document.createElement("td");
-  carb.className = "td_carb";
-  carb.textContent = `${toInt(alimento.carbo)}g`;
-
-  row.appendChild(nome);
-  row.appendChild(kcal);
-  row.appendChild(prot);
-  row.appendChild(gord);
-  row.appendChild(carb);
-  return row;
-}
-
-function renderTacoResults(alimentos) {
-  const body = document.getElementById("alimentos_tabela_Taco");
-  if (!body) {
-    return;
-  }
-
-  body.innerHTML = "";
-
-  if (!Array.isArray(alimentos) || alimentos.length === 0) {
-    const emptyRow = document.createElement("tr");
-    const emptyCol = document.createElement("td");
-    emptyCol.colSpan = 5;
-    emptyCol.textContent = "Nenhum alimento encontrado.";
-    emptyCol.style.textAlign = "center";
-    emptyRow.appendChild(emptyCol);
-    body.appendChild(emptyRow);
-    return;
-  }
-
-  alimentos.forEach((alimento) => {
-    body.appendChild(buildTacoRow(alimento));
-  });
-}
-
-async function fetchTacoResults(searchText) {
-  if (!isTacoConfigured()) {
-    throw new Error("API TACO nao configurada neste ambiente.");
-  }
-
-  const endpoint = `/api/alimentos/?search=${encodeURIComponent(searchText)}`;
-  const response = await fetch(endpoint, {
-    method: "GET",
-    headers: {
-      "X-Requested-With": "XMLHttpRequest",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Falha ao buscar alimentos.");
-  }
-
-  const payload = await response.json();
-  return Array.isArray(payload.results) ? payload.results : [];
-}
-
-function setupTacoSearch() {
-  const form = document.getElementById("taco-search-form");
-  const input = document.getElementById("taco-search-input");
-
-  if (!form || !input) {
-    return;
-  }
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!isTacoConfigured()) {
-      alert("API TACO nao configurada neste ambiente.");
-      return;
-    }
-
-    try {
-      const results = await fetchTacoResults(input.value.trim());
-      renderTacoResults(results);
-    } catch (error) {
-      alert("Nao foi possivel buscar alimentos agora.");
-    }
-  });
-}
-
-async function createTacoFood(payload) {
-  if (!isTacoConfigured()) {
-    throw new Error("API TACO nao configurada neste ambiente.");
-  }
-
-  const response = await fetch("/api/alimentos/criar/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"),
-      "X-Requested-With": "XMLHttpRequest",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  let responseData = {};
-  try {
-    responseData = await response.json();
-  } catch (error) {
-    responseData = {};
-  }
-
-  if (!response.ok) {
-    throw new Error(responseData.detail || "Nao foi possivel adicionar alimento na API.");
-  }
-
-  return responseData;
-}
-
-function isMobileCreateMode() {
-  return window.matchMedia("(max-width: 760px)").matches;
-}
-
-function setTacoCreateModalOpen(visible) {
-  const form = document.getElementById("taco-create-form");
-  const overlay = document.getElementById("taco-create-overlay");
-  if (!form || !overlay) {
-    return;
-  }
-
-  state.tacoCreateModalOpen = visible;
-  form.classList.toggle("is-open", visible);
-  overlay.classList.toggle("is-open", visible);
-  overlay.hidden = !visible;
-}
-
-function setupTacoCreateModal() {
-  const trigger = document.getElementById("open-taco-create-modal");
-  const closeButton = document.getElementById("close-taco-create-modal");
-  const overlay = document.getElementById("taco-create-overlay");
-  const nameInput = document.getElementById("taco-create-name");
-
-  if (!trigger) {
-    return;
-  }
-
-  trigger.addEventListener("click", () => {
-    if (isMobileCreateMode()) {
-      setTacoCreateModalOpen(true);
-      if (nameInput) {
-        nameInput.focus();
-      }
-      return;
-    }
-
-    if (nameInput) {
-      nameInput.focus();
-      nameInput.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  });
-
-  if (closeButton) {
-    closeButton.addEventListener("click", () => setTacoCreateModalOpen(false));
-  }
-
-  if (overlay) {
-    overlay.addEventListener("click", () => setTacoCreateModalOpen(false));
-  }
-
-  window.addEventListener("resize", () => {
-    if (!isMobileCreateMode() && state.tacoCreateModalOpen) {
-      setTacoCreateModalOpen(false);
-    }
-  });
-}
-
-function setupTacoCreateForm() {
-  const form = document.getElementById("taco-create-form");
-  if (!form) {
-    return;
-  }
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const nameInput = document.getElementById("taco-create-name");
-    const kcalInput = document.getElementById("taco-create-kcal");
-    const proteinInput = document.getElementById("taco-create-protein");
-    const fatInput = document.getElementById("taco-create-fat");
-    const carboInput = document.getElementById("taco-create-carbo");
-    const searchInput = document.getElementById("taco-search-input");
-
-    const payload = {
-      name: String(nameInput?.value || "").trim(),
-      kcal: toInt(kcalInput?.value),
-      protein: toInt(proteinInput?.value),
-      fat: toInt(fatInput?.value),
-      carbo: toInt(carboInput?.value),
-    };
-
-    if (!payload.name) {
-      alert("Informe o nome do alimento.");
-      return;
-    }
-
-    if (payload.kcal < 0 || payload.protein < 0 || payload.fat < 0 || payload.carbo < 0) {
-      alert("Macros devem ser maiores ou iguais a zero.");
-      return;
-    }
-
-    try {
-      await createTacoFood(payload);
-      form.reset();
-      if (state.tacoCreateModalOpen) {
-        setTacoCreateModalOpen(false);
-      }
-      alert("Alimento adicionado na API TACO com sucesso.");
-
-      const results = await fetchTacoResults(searchInput?.value?.trim() || "");
-      renderTacoResults(results);
-    } catch (error) {
-      alert(error.message || "Falha ao adicionar alimento na API TACO.");
-    }
-  });
-}
-
-function initializeCreateDietPage() {
-  const quantidadeSelect = document.getElementById("quantidade_de_refeicoes");
-  if (!quantidadeSelect) {
-    return;
-  }
-
-  // Prevent stale modal classes after resize/cache restore.
-  setTacoCreateModalOpen(false);
-
-  setupCopyControls();
-
-  for (let refeicao = 1; refeicao <= TOTAL_REFEICOES; refeicao += 1) {
-    ensureMinRows(refeicao);
-  }
-
-  quantidadeSelect.addEventListener("change", () => {
-    refeicoes_quanti(quantidadeSelect.value);
-    macros_dieta_user();
-  });
-
-  bindMealFormSubmit();
-  setupTacoSearch();
-  setupTacoCreateModal();
-  setupTacoCreateForm();
-  initializeSummaryToggle();
-  initializeMobileCollapsers();
-  macros_dieta_user();
-  ensureActiveRow();
-  updateResumoDiario();
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initializeCreateDietPage);
-} else {
-  initializeCreateDietPage();
-}

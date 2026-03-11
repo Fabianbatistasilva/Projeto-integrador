@@ -1,27 +1,28 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block 'title' %}Cadastro{% endblock %}
+{% block 'body_class' %}auth-page{% endblock %}
 {% block 'extra_css' %}
   <link rel="stylesheet" href="{% static 'css/cadastro.css' %}" />
 {% endblock %}
 {% block 'sections' %}
 <div class="container_cadastro auth-register-page">
-  {% if messages %}
-    {% for message in messages %}
-      <div class="erro">
-        <div class="messagem_de_erro"><label>{{ message }}</label></div>
-      </div>
-    {% endfor %}
-  {% endif %}
-
   <section class="cadastro-card">
     <h1>Criar conta</h1>
     <p>Preencha os dados abaixo para iniciar.</p>
 
+    {% if messages %}
+      <div class="auth-feedback-list" role="alert" aria-live="polite">
+        {% for message in messages %}
+          <p class="auth-feedback-item">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <form class="form_cadastro" action="" method="POST">
       {% csrf_token %}
       <label for="cad-username">Usuario</label>
-      <input id="cad-username" placeholder="Escolha um usuario" class="user_cadastro" type="text" name="username" required>
+      <input id="cad-username" placeholder="Escolha um usuario" class="user_cadastro" type="text" name="username" value="{{ request.POST.username|default:'' }}" required>
 
       <label for="cad-password">Senha</label>
       <input id="cad-password" placeholder="Crie sua senha" class="senha_cadastro" type="password" name="password" required>

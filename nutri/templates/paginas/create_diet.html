@@ -2,7 +2,7 @@
 {% load static %}
 {% block 'title' %}Criando sua dieta{% endblock %}
 {% block 'extra_css' %}
-  <link rel="stylesheet" href="{% static 'css/criar_dieta.css' %}?v=20260310-2" />
+  <link rel="stylesheet" href="{% static 'css/criar_dieta.css' %}?v=20260311-1" />
 {% endblock %}
 {% block 'sections' %}
 <div class="body_create_diet">
@@ -24,12 +24,13 @@
           class="planner-toggle-btn"
           aria-expanded="true"
           aria-controls="planner_metrics_block"
-          onclick="togglePlannerMetrics()"
+          data-action="toggle-planner"
         >
           Reduzir metas
         </button>
       </div>
       <p>Selecione os alimentos na tabela, defina as quantidades e calcule os macros de cada refeicao.</p>
+      <p id="planner-feedback" class="taco-feedback planner-feedback" role="status" aria-live="polite"></p>
     </div>
 
     <div class="container_dados_dieta_user" id="planner_metrics_block">
@@ -86,7 +87,7 @@
           <option value="5">5 refeicoes</option>
           <option value="6" selected>6 refeicoes</option>
         </select>
-        <button class="button_macros" onclick="macros_dieta_user()" type="button">Atualizar metas</button>
+        <button class="button_macros" type="button" data-action="refresh-goals">Atualizar metas</button>
       </div>
     </div>
 
@@ -95,221 +96,44 @@
       <input type="hidden" name="diet_payload" id="diet_payload">
 
       <div class="meal-grid container_refeicoes_user">
-        <article class="refeicao-card refeicoes_user_one" data-refeicao="1">
-          <div class="refeicao-header">
-            <h3>1a refeicao</h3>
-            <button
-              type="button"
-              class="ref-toggle-btn"
-              data-ref-toggle="1"
-              aria-expanded="true"
-              aria-controls="ref_content_1"
-              onclick="toggleRefeicaoCard(1)"
-            >
-              Reduzir
-            </button>
-          </div>
-          <div class="refeicao-content" id="ref_content_1">
-            <div class="copy-controls" data-copy-source="1"></div>
-            <div class="meal-body">
-              <div class="food-column">
-                <div class="food-list" id="food_list_ref_1"></div>
-                <button type="button" class="btn-add-food" onclick="addFoodRow(1)">+ Adicionar alimento</button>
-              </div>
+        {% for meal in meal_cards %}
+          <article class="refeicao-card refeicoes_user_{{ meal.suffix }}" data-refeicao="{{ meal.number }}">
+            <div class="refeicao-header">
+              <h3>{{ meal.number }}a refeicao</h3>
+              <button
+                type="button"
+                class="ref-toggle-btn"
+                data-ref-toggle="{{ meal.number }}"
+                data-action="toggle-refeicao"
+                data-refeicao="{{ meal.number }}"
+                aria-expanded="true"
+                aria-controls="ref_content_{{ meal.number }}"
+              >
+                Reduzir
+              </button>
+            </div>
+            <div class="refeicao-content" id="ref_content_{{ meal.number }}">
+              <div class="copy-controls" data-copy-source="{{ meal.number }}"></div>
+              <div class="meal-body">
+                <div class="food-column">
+                  <div class="food-list" id="food_list_ref_{{ meal.number }}"></div>
+                  <button type="button" class="btn-add-food" data-action="add-food-row" data-refeicao="{{ meal.number }}">+ Adicionar alimento</button>
+                </div>
 
-              <div class="macros_refeicoes_one macro-column">
-                <p>Kcal total <strong id="calorias_da_ref_one"></strong></p>
-                <p>Proteina total <strong id="proteina_da_ref_one"></strong></p>
-                <p>Gordura total <strong id="gordura_da_ref_one"></strong></p>
-                <p>Carbo total <strong id="carboidratos_da_ref_one"></strong></p>
-                <div class="meal-actions">
-                  <button type="button" class="btn-calc" onclick="macros_refeicao(1)">Calcular</button>
-                  <button type="button" class="btn-clear" onclick="limpar_refeicao(1)">Limpar</button>
+                <div class="macros_refeicoes_{{ meal.suffix }} macro-column">
+                  <p>Kcal total <strong id="calorias_da_ref_{{ meal.suffix }}"></strong></p>
+                  <p>Proteina total <strong id="proteina_da_ref_{{ meal.suffix }}"></strong></p>
+                  <p>Gordura total <strong id="gordura_da_ref_{{ meal.suffix }}"></strong></p>
+                  <p>Carbo total <strong id="carboidratos_da_ref_{{ meal.suffix }}"></strong></p>
+                  <div class="meal-actions">
+                    <button type="button" class="btn-calc" data-action="calc-refeicao" data-refeicao="{{ meal.number }}">Calcular</button>
+                    <button type="button" class="btn-clear" data-action="clear-refeicao" data-refeicao="{{ meal.number }}">Limpar</button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </article>
-
-        <article class="refeicao-card refeicoes_user_two" data-refeicao="2">
-          <div class="refeicao-header">
-            <h3>2a refeicao</h3>
-            <button
-              type="button"
-              class="ref-toggle-btn"
-              data-ref-toggle="2"
-              aria-expanded="true"
-              aria-controls="ref_content_2"
-              onclick="toggleRefeicaoCard(2)"
-            >
-              Reduzir
-            </button>
-          </div>
-          <div class="refeicao-content" id="ref_content_2">
-            <div class="copy-controls" data-copy-source="2"></div>
-            <div class="meal-body">
-              <div class="food-column">
-                <div class="food-list" id="food_list_ref_2"></div>
-                <button type="button" class="btn-add-food" onclick="addFoodRow(2)">+ Adicionar alimento</button>
-              </div>
-
-              <div class="macros_refeicoes_two macro-column">
-                <p>Kcal total <strong id="calorias_da_ref_two"></strong></p>
-                <p>Proteina total <strong id="proteina_da_ref_two"></strong></p>
-                <p>Gordura total <strong id="gordura_da_ref_two"></strong></p>
-                <p>Carbo total <strong id="carboidratos_da_ref_two"></strong></p>
-                <div class="meal-actions">
-                  <button type="button" class="btn-calc" onclick="macros_refeicao(2)">Calcular</button>
-                  <button type="button" class="btn-clear" onclick="limpar_refeicao(2)">Limpar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="refeicao-card refeicoes_user_tree" data-refeicao="3">
-          <div class="refeicao-header">
-            <h3>3a refeicao</h3>
-            <button
-              type="button"
-              class="ref-toggle-btn"
-              data-ref-toggle="3"
-              aria-expanded="true"
-              aria-controls="ref_content_3"
-              onclick="toggleRefeicaoCard(3)"
-            >
-              Reduzir
-            </button>
-          </div>
-          <div class="refeicao-content" id="ref_content_3">
-            <div class="copy-controls" data-copy-source="3"></div>
-            <div class="meal-body">
-              <div class="food-column">
-                <div class="food-list" id="food_list_ref_3"></div>
-                <button type="button" class="btn-add-food" onclick="addFoodRow(3)">+ Adicionar alimento</button>
-              </div>
-
-              <div class="macros_refeicoes_tree macro-column">
-                <p>Kcal total <strong id="calorias_da_ref_tree"></strong></p>
-                <p>Proteina total <strong id="proteina_da_ref_tree"></strong></p>
-                <p>Gordura total <strong id="gordura_da_ref_tree"></strong></p>
-                <p>Carbo total <strong id="carboidratos_da_ref_tree"></strong></p>
-                <div class="meal-actions">
-                  <button type="button" class="btn-calc" onclick="macros_refeicao(3)">Calcular</button>
-                  <button type="button" class="btn-clear" onclick="limpar_refeicao(3)">Limpar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="refeicao-card refeicoes_user_four" data-refeicao="4">
-          <div class="refeicao-header">
-            <h3>4a refeicao</h3>
-            <button
-              type="button"
-              class="ref-toggle-btn"
-              data-ref-toggle="4"
-              aria-expanded="true"
-              aria-controls="ref_content_4"
-              onclick="toggleRefeicaoCard(4)"
-            >
-              Reduzir
-            </button>
-          </div>
-          <div class="refeicao-content" id="ref_content_4">
-            <div class="copy-controls" data-copy-source="4"></div>
-            <div class="meal-body">
-              <div class="food-column">
-                <div class="food-list" id="food_list_ref_4"></div>
-                <button type="button" class="btn-add-food" onclick="addFoodRow(4)">+ Adicionar alimento</button>
-              </div>
-
-              <div class="macros_refeicoes_four macro-column">
-                <p>Kcal total <strong id="calorias_da_ref_four"></strong></p>
-                <p>Proteina total <strong id="proteina_da_ref_four"></strong></p>
-                <p>Gordura total <strong id="gordura_da_ref_four"></strong></p>
-                <p>Carbo total <strong id="carboidratos_da_ref_four"></strong></p>
-                <div class="meal-actions">
-                  <button type="button" class="btn-calc" onclick="macros_refeicao(4)">Calcular</button>
-                  <button type="button" class="btn-clear" onclick="limpar_refeicao(4)">Limpar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="refeicao-card refeicoes_user_five" data-refeicao="5">
-          <div class="refeicao-header">
-            <h3>5a refeicao</h3>
-            <button
-              type="button"
-              class="ref-toggle-btn"
-              data-ref-toggle="5"
-              aria-expanded="true"
-              aria-controls="ref_content_5"
-              onclick="toggleRefeicaoCard(5)"
-            >
-              Reduzir
-            </button>
-          </div>
-          <div class="refeicao-content" id="ref_content_5">
-            <div class="copy-controls" data-copy-source="5"></div>
-            <div class="meal-body">
-              <div class="food-column">
-                <div class="food-list" id="food_list_ref_5"></div>
-                <button type="button" class="btn-add-food" onclick="addFoodRow(5)">+ Adicionar alimento</button>
-              </div>
-
-              <div class="macros_refeicoes_five macro-column">
-                <p>Kcal total <strong id="calorias_da_ref_five"></strong></p>
-                <p>Proteina total <strong id="proteina_da_ref_five"></strong></p>
-                <p>Gordura total <strong id="gordura_da_ref_five"></strong></p>
-                <p>Carbo total <strong id="carboidratos_da_ref_five"></strong></p>
-                <div class="meal-actions">
-                  <button type="button" class="btn-calc" onclick="macros_refeicao(5)">Calcular</button>
-                  <button type="button" class="btn-clear" onclick="limpar_refeicao(5)">Limpar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="refeicao-card refeicoes_user_six" data-refeicao="6">
-          <div class="refeicao-header">
-            <h3>6a refeicao</h3>
-            <button
-              type="button"
-              class="ref-toggle-btn"
-              data-ref-toggle="6"
-              aria-expanded="true"
-              aria-controls="ref_content_6"
-              onclick="toggleRefeicaoCard(6)"
-            >
-              Reduzir
-            </button>
-          </div>
-          <div class="refeicao-content" id="ref_content_6">
-            <div class="copy-controls" data-copy-source="6"></div>
-            <div class="meal-body">
-              <div class="food-column">
-                <div class="food-list" id="food_list_ref_6"></div>
-                <button type="button" class="btn-add-food" onclick="addFoodRow(6)">+ Adicionar alimento</button>
-              </div>
-
-              <div class="macros_refeicoes_six macro-column">
-                <p>Kcal total <strong id="calorias_da_ref_six"></strong></p>
-                <p>Proteina total <strong id="proteina_da_ref_six"></strong></p>
-                <p>Gordura total <strong id="gordura_da_ref_six"></strong></p>
-                <p>Carbo total <strong id="carboidratos_da_ref_six"></strong></p>
-                <div class="meal-actions">
-                  <button type="button" class="btn-calc" onclick="macros_refeicao(6)">Calcular</button>
-                  <button type="button" class="btn-clear" onclick="limpar_refeicao(6)">Limpar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
+          </article>
+        {% endfor %}
       </div>
 
       <button type="submit" class="save-diet-btn">Salvar dieta</button>
@@ -337,12 +161,13 @@
         <span>Kcal</span>
       </div>
 
-      <div class="summary-row" id="summary_ref_1" data-ref="1"><span>1a</span><strong id="summary_ref_1_qty">0 g</strong><strong id="summary_ref_1_kcal">0 kcal</strong></div>
-      <div class="summary-row" id="summary_ref_2" data-ref="2"><span>2a</span><strong id="summary_ref_2_qty">0 g</strong><strong id="summary_ref_2_kcal">0 kcal</strong></div>
-      <div class="summary-row" id="summary_ref_3" data-ref="3"><span>3a</span><strong id="summary_ref_3_qty">0 g</strong><strong id="summary_ref_3_kcal">0 kcal</strong></div>
-      <div class="summary-row" id="summary_ref_4" data-ref="4"><span>4a</span><strong id="summary_ref_4_qty">0 g</strong><strong id="summary_ref_4_kcal">0 kcal</strong></div>
-      <div class="summary-row" id="summary_ref_5" data-ref="5"><span>5a</span><strong id="summary_ref_5_qty">0 g</strong><strong id="summary_ref_5_kcal">0 kcal</strong></div>
-      <div class="summary-row" id="summary_ref_6" data-ref="6"><span>6a</span><strong id="summary_ref_6_qty">0 g</strong><strong id="summary_ref_6_kcal">0 kcal</strong></div>
+      {% for meal in meal_cards %}
+        <div class="summary-row" id="summary_ref_{{ meal.number }}" data-ref="{{ meal.number }}">
+          <span>{{ meal.number }}a</span>
+          <strong id="summary_ref_{{ meal.number }}_qty">0 g</strong>
+          <strong id="summary_ref_{{ meal.number }}_kcal">0 kcal</strong>
+        </div>
+      {% endfor %}
 
       <div class="summary-totals">
         <div><span>Total quantidade</span><strong id="summary_day_qty">0 g</strong></div>
@@ -365,8 +190,14 @@
 
       <form class="search-form" id="taco-search-form" action="" method="get">
         <input type="text" name="txtbuscar" id="taco-search-input" class="campo_de_busca_taco" placeholder="Buscar alimento" {% if not taco_configured %}disabled{% endif %}>
-        <button class="button_de_busca_taco" type="submit" {% if not taco_configured %}disabled{% endif %}>Buscar</button>
+        <button class="button_de_busca_taco" id="taco-search-btn" type="submit" {% if not taco_configured %}disabled{% endif %}>Buscar</button>
       </form>
+      <p id="taco-feedback" class="taco-feedback" role="status" aria-live="polite"></p>
+      <div class="taco-pagination" id="taco-pagination">
+        <button type="button" id="taco-prev-btn" class="button_de_busca_taco" disabled>Anterior</button>
+        <span id="taco-page-label">Pagina 1</span>
+        <button type="button" id="taco-next-btn" class="button_de_busca_taco" disabled>Proxima</button>
+      </div>
 
       <div class="taco-create-mobile-action">
         <button type="button" class="button_de_busca_taco" id="open-taco-create-modal" {% if not taco_configured %}disabled{% endif %}>Adicionar alimento na API</button>
@@ -383,7 +214,7 @@
         <input type="number" id="taco-create-protein" placeholder="Proteina" min="0" required {% if not taco_configured %}disabled{% endif %}>
         <input type="number" id="taco-create-fat" placeholder="Gordura" min="0" required {% if not taco_configured %}disabled{% endif %}>
         <input type="number" id="taco-create-carbo" placeholder="Carbo" min="0" required {% if not taco_configured %}disabled{% endif %}>
-        <button class="button_de_busca_taco" type="submit" {% if not taco_configured %}disabled{% endif %}>Adicionar na API</button>
+        <button class="button_de_busca_taco" id="taco-create-submit-btn" type="submit" {% if not taco_configured %}disabled{% endif %}>Adicionar na API</button>
       </form>
 
       <div class="table-wrapper">
@@ -399,7 +230,7 @@
           </thead>
           <tbody id="alimentos_tabela_Taco">
             {% for info in taco %}
-              <tr class="row_alimentos" onclick="adicionar_alimento(this)">
+              <tr class="row_alimentos" data-action="select-taco-row">
                 <td class="td_alimento_1">{{ info.name }}</td>
                 <td class="td_kcal">{{ info.kcal }}kcal</td>
                 <td class="td_prot">{{ info.protein }}g</td>
@@ -419,5 +250,8 @@
 </div>
 {% endblock %}
 {% block 'extra_js' %}
-  <script src="{% static 'js/criar_dieta.js' %}" defer></script>
+  <script src="{% static 'js/create_diet/state.js' %}?v=20260311-1" defer></script>
+  <script src="{% static 'js/create_diet/meal_builder.js' %}?v=20260311-1" defer></script>
+  <script src="{% static 'js/create_diet/taco_api.js' %}?v=20260311-1" defer></script>
+  <script src="{% static 'js/create_diet/events.js' %}?v=20260311-1" defer></script>
 {% endblock %}
