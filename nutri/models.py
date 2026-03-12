@@ -6,11 +6,18 @@ from django.contrib.auth.models import User
 
 class Objetivo(models.Model):
     objetivo = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=64, unique=True)
+    ordem = models.PositiveSmallIntegerField(default=1)
+
     def __str__(self):
         return self.objetivo
     
 class NivelAtividade(models.Model):
     atividade = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=64, unique=True)
+    fator = models.DecimalField(max_digits=4, decimal_places=2)
+    ordem = models.PositiveSmallIntegerField(default=1)
+
     def __str__(self):
         return self.atividade
 

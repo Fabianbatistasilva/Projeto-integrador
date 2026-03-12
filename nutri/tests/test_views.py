@@ -1,17 +1,163 @@
+import importlib
 import json
 import os
 import subprocess
 import sys
+from decimal import Decimal
 from unittest.mock import Mock, patch
 
 import requests
+from django.apps import apps as global_apps
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
-from nutri.models import ImprimirDieta
+from nutri.models import Dieta, ImprimirDieta, NivelAtividade, Objetivo
 from nutri.tests.factories import make_dieta_for_user, make_goal_and_activity, make_user
+
+
+class TmbCatalogSeedTests(TestCase):
+    def test_default_goals_exist_with_expected_slugs_and_order(self):
+        objetivos = list(
+            Objetivo.objects.order_by("ordem", "objetivo").values_list("objetivo", "slug", "ordem")
+        )
+        self.assertEqual(
+            objetivos[:3],
+            [
+                ("Bulking", "bulking", 1),
+                ("Cutting", "cutting", 2),
+                ("Manter", "manter", 3),
+            ],
+        )
+
+    def test_default_activity_levels_exist_with_expected_factor_and_order(self):
+        atividades = list(
+            NivelAtividade.objects.order_by("ordem", "atividade").values_list(
+                "atividade", "slug", "fator", "ordem"
+            )
+        )
+        self.assertEqual(
+            atividades[:3],
+            [
+                ("Levemente Ativo", "leve", Decimal("1.30"), 1),
+                ("Moderadamente Ativo", "moderado", Decimal("1.50"), 2),
+                ("Bastante Ativo", "intenso", Decimal("1.80"), 3),
+            ],
+        )
+
+    def test_seed_backfills_existing_goal_record_without_duplication(self):
+        Objetivo.objects.filter(slug="bulking").delete()
+        objetivo = Objetivo.objects.create(objetivo="Bulking", slug="bulking-legado", ordem=99)
+
+        migration_module = importlib.import_module("nutri.migrations.0020_seed_tmb_catalogs")
+        migration_module.seed_tmb_catalogs(global_apps, None)
+
+        objetivo.refresh_from_db()
+        self.assertEqual(objetivo.slug, "bulking")
+        self.assertEqual(objetivo.ordem, 1)
+        self.assertEqual(Objetivo.objects.filter(slug="bulking").count(), 1)
+
+    def test_seed_backfills_existing_activity_record_without_duplication(self):
+        NivelAtividade.objects.filter(slug="leve").delete()
+        atividade = NivelAtividade.objects.create(
+            atividade="Levemente Ativo",
+            slug="leve-legado",
+            fator=Decimal("9.99"),
+            ordem=88,
+        )
+
+        migration_module = importlib.import_module("nutri.migrations.0020_seed_tmb_catalogs")
+        migration_module.seed_tmb_catalogs(global_apps, None)
+
+        atividade.refresh_from_db()
+        self.assertEqual(atividade.slug, "leve")
+        self.assertEqual(atividade.fator, Decimal("1.30"))
+        self.assertEqual(atividade.ordem, 1)
+        self.assertEqual(NivelAtividade.objects.filter(slug="leve").count(), 1)
+
+
+class TmbViewTests(TestCase):
+    def setUp(self):
+        self.user, self.password = make_user("tmb_user", "SenhaForte#2026")
+        self.objetivo, self.atividade = make_goal_and_activity()
+
+    def _login(self):
+        self.client.login(username=self.user.username, password=self.password)
+
+    def test_renders_tmb_selects_with_slug_and_factor_attributes(self):
+        self._login()
+        response = self.client.get(reverse("tela_tmb"))
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('data-slug="bulking"', content)
+        self.assertIn('data-slug="intenso"', content)
+        self.assertIn('data-factor="1.80"', content)
+
+    def test_rejects_goal_without_valid_slug(self):
+        self._login()
+        Objetivo.objects.filter(pk=self.objetivo.pk).update(slug="")
+
+        response = self.client.post(
+            reverse("tela_tmb"),
+            {
+                "objetivo_user": self.objetivo.pk,
+                "nivel_de_ati_user": self.atividade.pk,
+                "peso": "80",
+                "height": "175",
+                "age": "30",
+                "opcao": "Masculino",
+                "local_dados_do_user": "1800,2600,2300,160,70,250,Masculino",
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(response, reverse("tela_tmb"))
+        self.assertFalse(Dieta.objects.filter(usuario=self.user).exists())
+
+    def test_rejects_activity_without_positive_factor(self):
+        self._login()
+        NivelAtividade.objects.filter(pk=self.atividade.pk).update(fator=Decimal("0.00"))
+
+        response = self.client.post(
+            reverse("tela_tmb"),
+            {
+                "objetivo_user": self.objetivo.pk,
+                "nivel_de_ati_user": self.atividade.pk,
+                "peso": "80",
+                "height": "175",
+                "age": "30",
+                "opcao": "Masculino",
+                "local_dados_do_user": "1800,2600,2300,160,70,250,Masculino",
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(response, reverse("tela_tmb"))
+        self.assertFalse(Dieta.objects.filter(usuario=self.user).exists())
+
+    def test_saves_diet_with_slug_based_configuration(self):
+        self._login()
+        cutting = Objetivo.objects.get(slug="cutting")
+        moderado = NivelAtividade.objects.get(slug="moderado")
+
+        response = self.client.post(
+            reverse("tela_tmb"),
+            {
+                "objetivo_user": cutting.pk,
+                "nivel_de_ati_user": moderado.pk,
+                "peso": "80",
+                "height": "175",
+                "age": "30",
+                "opcao": "Masculino",
+                "local_dados_do_user": "1800,2700,2200,176,80,212,Masculino",
+            },
+        )
+
+        self.assertRedirects(response, reverse("criar_dieta"))
+        dieta = Dieta.objects.get(usuario=self.user)
+        self.assertEqual(dieta.objetivo_id, cutting.pk)
+        self.assertEqual(dieta.nivel_atividade_id, moderado.pk)
 
 
 class CreateDietViewTests(TestCase):

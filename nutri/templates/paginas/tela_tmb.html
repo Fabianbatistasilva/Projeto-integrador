@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load l10n %}
 {% block 'title' %}TMB{% endblock %}
 {% block 'extra_css' %}
   <link rel="stylesheet" href="{% static 'css/tmb.css' %}" />
@@ -32,7 +33,13 @@
         <label for="objetivo_user">Objetivo</label>
         <select name="objetivo_user" id="objetivo_user">
           {% for c in objetivo %}
-            <option value="{{ c.id }}">{{ c }}</option>
+            <option
+              value="{{ c.id }}"
+              data-slug="{{ c.slug }}"
+              {% if verUser and verUser.objetivo_id == c.id %}selected{% endif %}
+            >
+              {{ c }}
+            </option>
           {% endfor %}
         </select>
       </div>
@@ -41,7 +48,14 @@
         <label for="nivel_de_ati_user">Atividade</label>
         <select name="nivel_de_ati_user" id="nivel_de_ati_user">
           {% for c in nivel_at %}
-            <option value="{{ c.id }}">{{ c }}</option>
+            <option
+              value="{{ c.id }}"
+              data-slug="{{ c.slug }}"
+              data-factor="{{ c.fator|unlocalize }}"
+              {% if verUser and verUser.nivel_atividade_id == c.id %}selected{% endif %}
+            >
+              {{ c }}
+            </option>
           {% endfor %}
         </select>
       </div>

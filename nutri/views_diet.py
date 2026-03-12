@@ -12,7 +12,12 @@ from nutri.services.diet_service import (
     parse_diet_payload_text,
     save_dynamic_diet,
 )
-from nutri.services.tmb_service import TmbValidationError, parse_calculated_diet_values, validate_basic_tmb_fields
+from nutri.services.tmb_service import (
+    TmbValidationError,
+    parse_calculated_diet_values,
+    validate_basic_tmb_fields,
+    validate_goal_and_activity_config,
+)
 from nutri.views_taco import fetch_taco_alimentos, is_taco_configured
 
 
@@ -73,8 +78,8 @@ def tela_tmb(request):
     if request.user.is_authenticated is False:
         return redirect("login_site")
 
-    objetivos = Objetivo.objects.all()
-    niveis_atividade = NivelAtividade.objects.all()
+    objetivos = Objetivo.objects.order_by("ordem", "objetivo")
+    niveis_atividade = NivelAtividade.objects.order_by("ordem", "atividade")
     ver_user = Dieta.objects.filter(usuario_id=request.user.id).first()
 
     if request.method == "POST":
@@ -85,12 +90,15 @@ def tela_tmb(request):
             messages.info(request, "Selecione objetivo e nivel de atividade.")
             return redirect("tela_tmb")
 
-        if not Objetivo.objects.filter(id=objetivo_id).exists() or not NivelAtividade.objects.filter(id=nivel_atividade_id).exists():
+        objetivo = Objetivo.objects.filter(id=objetivo_id).first()
+        nivel_atividade = NivelAtividade.objects.filter(id=nivel_atividade_id).first()
+        if not objetivo or not nivel_atividade:
             messages.info(request, "Objetivo ou nivel de atividade invalido.")
             return redirect("tela_tmb")
 
         try:
             base_fields = validate_basic_tmb_fields(request.POST)
+            validate_goal_and_activity_config(objetivo, nivel_atividade)
             calculated_values = parse_calculated_diet_values(request.POST.get("local_dados_do_user"))
         except TmbValidationError as error:
             messages.info(request, str(error))
@@ -183,4 +191,3 @@ def diet_screen(request):
             "gasto_dia": gasto_dia,
         },
     )
-

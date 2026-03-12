@@ -13,10 +13,19 @@ function getSelectedSex() {
   return feminino && feminino.checked ? "Feminino" : "Masculino";
 }
 
-function gasto_dia(valor_tmb, n_atividade) {
-  const atividade = Number(n_atividade);
-  const fator = atividade === 3 ? 1.3 : atividade === 2 ? 1.5 : 1.8;
-  return Math.trunc(valor_tmb * fator);
+function getSelectedOptionDataset(id) {
+  const select = document.getElementById(id);
+  if (!select || select.selectedIndex < 0) {
+    return {};
+  }
+
+  const selectedOption = select.options[select.selectedIndex];
+  return selectedOption ? selectedOption.dataset : {};
+}
+
+function gasto_dia(valor_tmb, fatorAtividade) {
+  const fator = Number(fatorAtividade);
+  return Number.isFinite(fator) && fator > 0 ? Math.trunc(valor_tmb * fator) : 0;
 }
 
 function calcularTmb(peso, altura, idade, sexo) {
@@ -26,18 +35,18 @@ function calcularTmb(peso, altura, idade, sexo) {
   return Math.trunc(66 + 13.7 * peso + 5.0 * altura - 6.8 * idade);
 }
 
-function calcularPlanoNutricional(peso, gastoDia, objetivo, sexo) {
+function calcularPlanoNutricional(peso, gastoDia, objetivoSlug, sexo) {
   let calorias = gastoDia;
   let proteina = Math.trunc(peso * 2);
   let gordura = Math.trunc(peso * 1.5);
   let objetivoLabel = "Manter Peso";
 
-  if (objetivo === 2) {
+  if (objetivoSlug === "cutting") {
     calorias = Math.trunc(gastoDia - 500);
     proteina = Math.trunc(peso * 2.2);
     gordura = Math.trunc(peso * 1);
     objetivoLabel = "Cutting";
-  } else if (objetivo !== 3) {
+  } else if (objetivoSlug === "bulking") {
     calorias = Math.trunc(gastoDia + 500);
     proteina = Math.trunc(peso * (sexo === "Feminino" ? 2.2 : 2));
     gordura = Math.trunc(peso * (sexo === "Feminino" ? 1.8 : 2));
@@ -112,13 +121,22 @@ function botao_gerar() {
   }
 
   const { peso, altura, idade } = validacao;
-  const objetivo = Number(getElementValue("objetivo_user"));
-  const nivelAtividade = Number(getElementValue("nivel_de_ati_user"));
+  const objetivoId = Number(getElementValue("objetivo_user"));
+  const nivelAtividadeId = Number(getElementValue("nivel_de_ati_user"));
+  const objetivoData = getSelectedOptionDataset("objetivo_user");
+  const atividadeData = getSelectedOptionDataset("nivel_de_ati_user");
+  const objetivoSlug = String(objetivoData.slug || "").trim().toLowerCase();
+  const fatorAtividade = Number(atividadeData.factor);
   const sexo = getSelectedSex();
 
+  if (!objetivoId || !nivelAtividadeId || !objetivoSlug || !Number.isFinite(fatorAtividade) || fatorAtividade <= 0) {
+    alert("Objetivo ou nivel de atividade invalido. Atualize os cadastros e tente novamente.");
+    return;
+  }
+
   const tmb = calcularTmb(peso, altura, idade, sexo);
-  const gastoDia = gasto_dia(tmb, nivelAtividade);
-  const plano = calcularPlanoNutricional(peso, gastoDia, objetivo, sexo);
+  const gastoDia = gasto_dia(tmb, fatorAtividade);
+  const plano = calcularPlanoNutricional(peso, gastoDia, objetivoSlug, sexo);
 
   const containerResultado = document.querySelector(".valor_tmb");
   const localTmbParado = document.getElementById("gasto_parado_javascript");
